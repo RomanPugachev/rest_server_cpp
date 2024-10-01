@@ -1,5 +1,5 @@
 # https://hub.docker.com/r/drogonframework/drogon
-FROM ubuntu:24.04 AS rest-server-cpp-build-dev
+FROM ubuntu:24.04 AS build-dev
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && apt-get install -y \
@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y \
     openssl libssl-dev uuid-dev zlib1g-dev libpq-dev \
     libcxxopts-dev libjsoncpp-dev postgresql-all libsqlite3-dev
 
-FROM rest-server-cpp-build-dev as rest-server-cpp-build
+FROM build-dev as build
 WORKDIR /app
 COPY . .
 
@@ -17,14 +17,14 @@ RUN --mount=type=cache,target=/app/build,sharing=locked \
     cmake --build  . -j$(nproc) && \
     mv output_bin/ ../
 
-FROM ubuntu:24.04 AS rest-server-cpp-runtime
+FROM ubuntu:24.04 AS runtime
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl libssl3 libuuid1 zlib1g libjsoncpp25 libpq5 libsqlite3-0\
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
-COPY --from=rest-server-cpp-build /app/output_bin /app
-COPY --from=rest-server-cpp-build /app/config.json /app
+COPY --from=build /app/output_bin /app
+COPY --from=build /app/config.json /app
 
 ENV PORT=8080
 

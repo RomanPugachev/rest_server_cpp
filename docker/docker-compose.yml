@@ -1,6 +1,6 @@
 services:
   rest-cxx:
-    image: ${REGISTRY_HOST}/next/rest-cxx/${CI_COMMIT_BRANCH}
+    image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}
     build:
       context: ../rest_server
       dockerfile: ../docker/cxx/Dockerfile
@@ -16,6 +16,6 @@ services:
   rest-cxx-dev:
     image: ${REGISTRY_HOST}/devcontainer/rest-cxx-dev
     build:
-      target: rest-server-cpp-build-dev
+      target: build-dev
       context: ../rest_server
       dockerfile: ../docker/cxx/Dockerfile
