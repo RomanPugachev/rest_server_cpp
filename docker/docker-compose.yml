@@ -16,6 +16,6 @@ services:
   rest-cxx-dev:
     image: ${REGISTRY_HOST}/devcontainer/rest-cxx-dev
     build:
-      target: build-dev
+      target: rest-server-cpp-build-dev
       context: ../rest_server
       dockerfile: ../docker/cxx/Dockerfile
