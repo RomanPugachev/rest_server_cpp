@@ -1,6 +1,6 @@
 // https://drogonframework.github.io/drogon-docs/#/ENG/ENG-11-Configuration-File?id=configuration-file
 {
-"app": {
+  "app": {
     "threads_num": 0                  // If the value is set to 0, the number of IO threads will be the number of all hardware cores.
   },
   "log": {

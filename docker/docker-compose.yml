@@ -8,9 +8,9 @@ services:
         - A=A
     environment:
       DB_URL: postgres://node:node@swarm.next:15001/aip_data?sslmode=disable
-      PORT: 8000
+      PORT: 8080
     ports:
-      - 8000:8000
+      - 8080:8080
 
 
   rest-cxx-dev:
