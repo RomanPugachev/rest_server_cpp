@@ -19,6 +19,6 @@ jobs:
           export $(grep -v '^#' .env | xargs)
           export REPOSITORY_OWNER=${{ github.repository_owner}}
           export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
-          export CI_COMMIT_BRANCH=${{ github.sha }}
+          export CI_COMMIT_BRANCH=${{ github.ref_name }}
           docker buildx bake -f docker-compose.yml rest-cxx --push
   #          docker buildx imagetools create -t $DOCKER_REPO:latest $DOCKER_REPO:$DOCKER_TAG
