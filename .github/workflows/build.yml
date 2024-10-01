@@ -18,5 +18,5 @@ jobs:
           DOCKER_REPO: ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}
           DOCKER_TAG: ${{ github.sha }}
         run: |
-          export $(grep -v '^#' docker/.env | xargs)  docker buildx bake -f docker/docker-compose.yml --push
+          export $(grep -v '^#' docker/.env | xargs) && docker buildx bake -f docker/docker-compose.yml --push
 #          docker buildx imagetools create -t $DOCKER_REPO:latest $DOCKER_REPO:$DOCKER_TAG
