@@ -20,5 +20,5 @@ jobs:
         run: |
           cd docker
           export $(grep -v '^#' .env | xargs)
-          docker buildx bake -f docker-compose.yml --target rest-cxx --push
+          docker buildx bake -f docker-compose.yml rest-cxx --push
 #          docker buildx imagetools create -t $DOCKER_REPO:latest $DOCKER_REPO:$DOCKER_TAG
