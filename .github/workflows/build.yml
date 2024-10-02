@@ -22,7 +22,7 @@ jobs:
 #          export CI_COMMIT_BRANCH=${{ github.ref_name }}
 #          docker buildx bake -f docker-compose.yml --push
 #  #          docker buildx imagetools create -t $DOCKER_REPO:latest $DOCKER_REPO:$DOCKER_TAG
-
+#
   deploy:
     needs: build-and-push
     runs-on: ubuntu-24.04
