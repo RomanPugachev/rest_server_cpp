@@ -30,7 +30,8 @@ jobs:
       - uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
-          userkey: ${{ secrets.SERVER_SSH_KEY }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
           passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
           script: |
             if ! [ -x "$(command -v docker)" ]; then
