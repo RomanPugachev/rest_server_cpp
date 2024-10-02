@@ -24,7 +24,7 @@ jobs:
 #  #          docker buildx imagetools create -t $DOCKER_REPO:latest $DOCKER_REPO:$DOCKER_TAG
 #
   deploy:
-    needs: build-and-push
+    #needs: build-and-push
     runs-on: ubuntu-24.04
     steps:
       - uses: appleboy/ssh-action@master
