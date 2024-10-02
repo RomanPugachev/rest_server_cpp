@@ -3,25 +3,25 @@ on:
   push: { branches: [main, master, release] }
 
 jobs:
-  build-and-push:
-    runs-on: ubuntu-24.04
-    permissions: { contents: read, packages: write }
-    steps:
-      - uses: actions/checkout@v3
-      - uses: docker/login-action@v2
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/setup-buildx-action@v2
-      - run: |
-          cd docker
-          export $(grep -v '^#' .env | xargs)
-          export REPOSITORY_OWNER=${{ github.repository_owner}}
-          export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
-          export CI_COMMIT_BRANCH=${{ github.ref_name }}
-          docker buildx bake -f docker-compose.yml --push
-  #          docker buildx imagetools create -t $DOCKER_REPO:latest $DOCKER_REPO:$DOCKER_TAG
+#  build-and-push:
+#    runs-on: ubuntu-24.04
+#    permissions: { contents: read, packages: write }
+#    steps:
+#      - uses: actions/checkout@v3
+#      - uses: docker/login-action@v2
+#        with:
+#          registry: ghcr.io
+#          username: ${{ github.actor }}
+#          password: ${{ secrets.GITHUB_TOKEN }}
+#      - uses: docker/setup-buildx-action@v2
+#      - run: |
+#          cd docker
+#          export $(grep -v '^#' .env | xargs)
+#          export REPOSITORY_OWNER=${{ github.repository_owner}}
+#          export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
+#          export CI_COMMIT_BRANCH=${{ github.ref_name }}
+#          docker buildx bake -f docker-compose.yml --push
+#  #          docker buildx imagetools create -t $DOCKER_REPO:latest $DOCKER_REPO:$DOCKER_TAG
 
   deploy:
     needs: build-and-push
@@ -67,7 +67,8 @@ jobs:
       - uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.SERVER_HOST }}
-          userkey: ${{ secrets.SERVER_SSH_KEY }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
           passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
           script: |
             echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
