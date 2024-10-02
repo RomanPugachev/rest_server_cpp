@@ -74,7 +74,7 @@ jobs:
             export REPOSITORY_OWNER=${{ github.repository_owner}}
             echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd ${{ secrets.SERVER_PROJECT_PATH }}
-                      docker compose -f docker-compose-deploy.yaml \
-                        --env REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }} \
-                        --env CI_COMMIT_BRANCH=${{ github.ref_name }} \
-                        up -d 
+            docker compose -f docker-compose-deploy.yaml \
+              -e REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }} \
+              -e CI_COMMIT_BRANCH=${{ github.ref_name }} \
+              up -d 
