@@ -71,9 +71,10 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
           script: |
+            export REPOSITORY_OWNER=${{ github.repository_owner}}
             echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             cd ${{ secrets.SERVER_PROJECT_PATH }}
                       docker compose -f docker-compose-deploy.yaml \
-                        -e REGISTRY_HOST=ghcr.io \
-                        -e CI_COMMIT_BRANCH=${GITHUB_REF##*/} \
+                        -e REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }} \
+                        -e CI_COMMIT_BRANCH=${{ github.ref_name }} \
                         up -d 
