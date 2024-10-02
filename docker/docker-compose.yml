@@ -4,18 +4,14 @@ services:
     build:
       context: ../rest_server
       dockerfile: ../docker/cxx/Dockerfile
-      args:
-        - A=A
     environment:
       DB_URL: postgres://node:node@swarm.next:15001/aip_data?sslmode=disable
       PORT: 8080
     ports:
       - 8080:8080
 
-
-  rest-cxx-dev:
-    image: ${REGISTRY_HOST}/devcontainer/rest-cxx-dev
+  simpletracker:
+    image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}
     build:
-      target: build-dev
-      context: ../rest_server
-      dockerfile: ../docker/cxx/Dockerfile
+      context: ../simpleTaskTrackerWebApp
+      dockerfile: ../docker/java/Dockerfile

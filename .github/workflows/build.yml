@@ -11,8 +11,7 @@ jobs:
       - uses: docker/login-action@v2
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          userpassword: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/setup-buildx-action@v2
       - run: |
           cd docker
@@ -20,5 +19,55 @@ jobs:
           export REPOSITORY_OWNER=${{ github.repository_owner}}
           export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
           export CI_COMMIT_BRANCH=${{ github.ref_name }}
-          docker buildx bake -f docker-compose.yml rest-cxx --push
+          docker buildx bake -f docker-compose.yml --push
   #          docker buildx imagetools create -t $DOCKER_REPO:latest $DOCKER_REPO:$DOCKER_TAG
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          userkey: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
+          script: |
+            if ! [ -x "$(command -v docker)" ]; then
+              echo "Docker not found, installing..."
+              apt-get update
+              apt-get install -y docker.io docker-compose-plugin
+            fi           
+            
+            if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}" ]; then
+              mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}
+            fi
+            
+            cd ${{ secrets.SERVER_PROJECT_PATH }}
+            
+            if [ -f "docker-compose.yaml" ]; then
+              docker compose down
+            fi
+
+      - uses: actions/checkout@v2
+
+      - run: |
+          echo "${{ secrets.SERVER_SSH_KEY }}" > /tmp/private_key
+          chmod 600 /tmp/private_key
+          
+          echo "Contents of /tmp/private_key:"
+                    cat /tmp/private_key
+          scp -i /tmp/private_key -o StrictHostKeyChecking=no \
+          docker/docker-compose-deploy.yaml docker/commons.env \
+          ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:${{ secrets.SERVER_PROJECT_PATH }}
+
+          rm -f /tmp/private_key
+
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          userkey: ${{ secrets.SERVER_SSH_KEY }}
+          passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
+          script: |
+            echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            cd ${{ secrets.SERVER_PROJECT_PATH }}
+            docker compose -f docker-compose-deploy.yaml up -d

@@ -1,0 +1,76 @@
+services:
+
+  traefik:
+    image: traefik:v3.1
+    restart: always
+    command:
+      - "--providers.docker=true"
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=pugachev.ra@yandex.ru"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt.acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencryt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.simple-track.ru`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+
+  postgres:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+
+  pgweb:
+    image: sosedoff/pgweb:latest
+    restart: always
+    environment:
+      - PGWEB_DATABASE_URL=postgres://myuser:mypassword@postgres:5432/mydatabase?sslmode=disable
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgweb.rule=Host(`pgweb.simple-track.ru`)"
+      - "traefik.http.services.pgweb.loadbalancer.server.port=8081"
+      - "traefik.http.routers.pgweb.tls.certresolver=myresolver"
+
+  simpletracker:
+    image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest
+    restart: always
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.simpletracker.rule=Host(`main.simple-track.ru`)"
+      - "traefik.http.services.simpletracker.loadbalancer.server.port=8080"
+      - "traefik.http.routers.simpletracker.tls.certresolver=myresolver"
+
+
+  rest-server-cpp:
+    image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest
+    restart: always
+    environment:
+      DB_URL: postgres://myuser:mypassword@postgres:5432/mydatabase?sslmode=disable
+      PORT: 8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rest-server-cpp.rule=Host(`cpp.simple-track.ru`)"
+      - "traefik.http.services.rest-server-cpp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.rest-server-cpp.tls.certresolver=myresolver"
