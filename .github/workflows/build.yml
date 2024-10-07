@@ -40,5 +40,5 @@ jobs:
         docker context use remote-server
         cd docker
         ls -la
-        docker compose config -f docker-compose-deploy.yaml
+        docker compose -f docker-compose-deploy.yaml config 
         docker stack deploy --compose-file docker-compose-deploy.yaml stack_my_app --with-registry-auth -d
