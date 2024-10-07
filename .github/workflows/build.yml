@@ -22,7 +22,6 @@ jobs:
           export CI_COMMIT_BRANCH=${{ github.ref_name }}
           docker buildx bake -f docker-compose.yml --push
 
-job:
   deploy-in-swarm:
     runs-on: ubuntu-24.04
     steps:
