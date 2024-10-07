@@ -27,10 +27,16 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
-    - uses: shimataro/ssh-key-action@v2
-      with:
-        known_hosts: ${{secets.SERVER_USERNAME}}@${{ secrets.SERVER_HOST }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
+    - run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+        echo "${{ secrets.SERVER_SSH_KEY_PUB }}" > ~/.ssh/id_rsa.pub
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+    #- uses: shimataro/ssh-key-action@v2
+    #  with:
+    #    known_hosts: ${{secets.SERVER_USERNAME}}@${{ secrets.SERVER_HOST }}
+    #    key: ${{ secrets.SERVER_SSH_KEY }}
     - run: |
         echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         docker context create remote-server --docker "host=ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
