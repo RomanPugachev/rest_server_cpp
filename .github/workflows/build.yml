@@ -23,6 +23,7 @@ jobs:
           docker buildx bake -f docker-compose.yml --push
 
   deploy-in-swarm:
+    needs: build-push-deploy
     runs-on: ubuntu-24.04
     steps:
       - uses: appleboy/ssh-action@master
