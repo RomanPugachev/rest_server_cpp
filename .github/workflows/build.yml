@@ -32,6 +32,6 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         known_hosts: ${{ secrets.KNOWN_HOSTS }}
     - run: |
-        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }} ghcr.io
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         docker context create remote-server --docker "host=ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
         docker --context remote-server stack deploy -c ./docker/docker-compose-deploy.yaml stack_my_app --with-registry-auth
