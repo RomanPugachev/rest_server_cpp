@@ -3,7 +3,6 @@ services:
 
   traefik:
     image: traefik:v3.1
-    restart: always
     command:
       - "--providers.docker.swarmMode=true"
 #      - "--providers.docker.network-trafik-piblic=true"
@@ -28,6 +27,10 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 
   postgres:
     image: postgres:17
