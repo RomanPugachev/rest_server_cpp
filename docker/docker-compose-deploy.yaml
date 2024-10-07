@@ -5,7 +5,8 @@ services:
     image: traefik:v3.1
     restart: always
     command:
-      - "--providers.docker=true"
+      - "--providers.docker.swarmMode=true"
+#      - "--providers.docker.network-trafik-piblic=true"
       - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--providers.docker.exposedbydefault=false"
@@ -37,6 +38,8 @@ services:
       POSTGRES_PASSWORD: mypassword
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
+    deploy:
+      replicas: 1
 
   pgweb:
     image: sosedoff/pgweb:latest
@@ -48,6 +51,8 @@ services:
       - "traefik.http.routers.pgweb.rule=Host(`pgweb.simple-track.ru`)"
       - "traefik.http.services.pgweb.loadbalancer.server.port=8081"
       - "traefik.http.routers.pgweb.tls.certresolver=myresolver"
+    deploy:
+      replicas: 1
 
   simpletracker:
     image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest
@@ -56,13 +61,13 @@ services:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
-
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.simpletracker.rule=Host(`main.simple-track.ru`)"
       - "traefik.http.services.simpletracker.loadbalancer.server.port=8080"
       - "traefik.http.routers.simpletracker.tls.certresolver=myresolver"
-
+    deploy:
+      replicas: 2
 
   rest-server-cpp:
     image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest
@@ -75,3 +80,5 @@ services:
       - "traefik.http.routers.rest-server-cpp.rule=Host(`cpp.simple-track.ru`)"
       - "traefik.http.services.rest-server-cpp.loadbalancer.server.port=8080"
       - "traefik.http.routers.rest-server-cpp.tls.certresolver=myresolver"
+    deploy:
+      replicas: 1
