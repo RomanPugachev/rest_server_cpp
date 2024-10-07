@@ -35,6 +35,7 @@ jobs:
           passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
           script: |
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            ls -la
             docker stack deploy --compose-file /dev/stdin my_app_stack <<EOF
-            $(cat docker/docker-compose-deploy.yaml)
+            $(cat ./docker/docker-compose-deploy.yaml)
             EOF
