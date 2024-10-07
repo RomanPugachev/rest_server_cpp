@@ -30,7 +30,7 @@ services:
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
 
   postgres:
-    image: postgres:latest
+    image: postgres:17
     restart: always
     environment:
       POSTGRES_DB: mydatabase
@@ -42,7 +42,7 @@ services:
       replicas: 1
 
   pgweb:
-    image: sosedoff/pgweb:latest
+    image: sosedoff/pgweb:0.16.1
     restart: always
     environment:
       - PGWEB_DATABASE_URL=postgres://myuser:mypassword@postgres:5432/mydatabase?sslmode=disable
