@@ -30,7 +30,7 @@ jobs:
       with:
         ruby-version: '3.3' # Not needed with a `.ruby-version` or `.tool-versions`
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - run: gem install dry-stack:0.1.18
+    - run: gem install dry-stack:0.1.19
     - uses: appleboy/ssh-action@master      # Installing docker environment with docker swarm; creating project directory on server
       with:
         host: ${{ secrets.SERVER_HOST }}
@@ -80,7 +80,7 @@ jobs:
         docker stack deploy --compose-file ./docker/docker-compose-deploy-services.yaml --with-registry-auth -d main_stack
         docker stack deploy --compose-file ./docker/docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
         dry-stack -s docker/portainer.drs to_compose
-        dry-stack -s docker/portainer.drs swarm_deploy -x ssh://${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru --name portainer -- --prune
+        dry-stack -s docker/portainer.drs swarm_deploy -x ssh://${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru -- --prune
 
 
 
