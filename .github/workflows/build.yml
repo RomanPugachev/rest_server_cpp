@@ -41,7 +41,11 @@ jobs:
           if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}" ]; then
             mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}
           fi
-          docker swarm init
+          if ! docker info | grep -q "Swarm: active"; then
+            docker swarm init
+          else
+            echo "This node is already part of a swarm, skipping 'docker swarm init'."
+          fi
     - uses: actions/checkout@v3
     - run: |
         mkdir -p ~/.ssh
