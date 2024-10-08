@@ -81,7 +81,7 @@ jobs:
         docker stack deploy --compose-file ./docker/docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
         dry-stack -s docker/portainer.drs to_compose
         cd docker
-        cat portainer.drs | dry-stack swarm_deploy -x ssh://${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru -- --prune
+        cat portainer.drs | dry-stack swarm_deploy -x ssh://${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru portainer -- --prune
 
 
 
