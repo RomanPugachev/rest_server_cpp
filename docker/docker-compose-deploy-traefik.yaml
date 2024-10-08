@@ -3,7 +3,7 @@ services:
     image: traefik:v3.1
     command:
       - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
-      - "--providers.swarm.networks=traefik-net"
+      - "--providers.swarm.networks=ingress"
       - "--api.dashboard=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
@@ -24,8 +24,6 @@ services:
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
       - "traefik.http.routers.traefik.tls.certresolver=myresolver"
-    networks:
-      - traefik-net
     deploy:
       mode: global
       restart_policy:
