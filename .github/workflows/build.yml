@@ -52,6 +52,10 @@ jobs:
           if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}/postgres_data" ]; then
             mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}/postgres_data
           fi
+          
+          if ! docker network ls | grep -q "traefik-net"; then
+            docker network create --driver overlay traefik-net
+          fi
     - uses: actions/checkout@v3
     - run: |
         mkdir -p ~/.ssh
@@ -70,3 +74,6 @@ jobs:
         docker context use remote-server 
         docker stack deploy --compose-file ./docker/docker-compose-deploy-services.yaml --with-registry-auth -d main_stack
         docker stack deploy --compose-file ./docker/docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
+
+
+

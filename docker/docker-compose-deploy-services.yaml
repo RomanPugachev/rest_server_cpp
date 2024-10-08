@@ -1,4 +1,8 @@
 # Test comment
+networks:
+  traefik-net:
+    external: true
+
 services:
   postgres:
     image: postgres:17
@@ -26,6 +30,8 @@ services:
       mode: global
       restart_policy:
           condition: on-failure
+    networks:
+      - traefik-net
 
   simpletracker:
     image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest
@@ -43,6 +49,8 @@ services:
       replicas: 2
       restart_policy:
         condition: on-failure
+    networks:
+      - traefik-net
 
   rest-server-cpp:
     image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest
@@ -59,3 +67,5 @@ services:
       replicas: 2
       restart_policy:
         condition: on-failure
+    networks:
+      - traefik-net
