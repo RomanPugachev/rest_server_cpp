@@ -1,8 +1,3 @@
-Description <<~DCS
-  Portainer stack
-DCS
-Labels 'stack.product': 'portainer'
-
 Options name: 'portainer'
 
 Ingress portainer: { host: 'portainer.*', port: '9000' }
