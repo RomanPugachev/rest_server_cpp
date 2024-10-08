@@ -37,14 +37,20 @@ jobs:
             echo "Docker not found, installing..."
             apt-get update
             apt-get install -y docker.io docker-compose-plugin
-          fi           
-          if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}" ]; then
-            mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}
           fi
           if ! docker info | grep -q "Swarm: active"; then
             docker swarm init
           else
             echo "This node is already part of a swarm, skipping 'docker swarm init'."
+          fi           
+          if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}" ]; then
+            mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}
+          fi
+          if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}/letsencryt" ]; then
+            mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}/letsencryt
+          fi
+          if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}/postgres_data" ]; then
+            mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}/postgres_data
           fi
     - uses: actions/checkout@v3
     - run: |
