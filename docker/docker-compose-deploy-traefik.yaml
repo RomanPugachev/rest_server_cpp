@@ -1,12 +1,12 @@
 networks:
-  traefik-net:
+  ingress-routing:
     external: true
 services:
   traefik:
     image: traefik:v3.1
     command:
       - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
-      - "--providers.swarm.networks=traefik-net"
+      - "--providers.swarm.networks=ingress-routing"
       - "--api.dashboard=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
@@ -32,4 +32,4 @@ services:
       restart_policy:
         condition: on-failure
     networks:
-      - traefik-net
+      - ingress-routing

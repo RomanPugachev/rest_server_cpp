@@ -1,6 +1,6 @@
 # Test comment
 networks:
-  traefik-net:
+  ingress-routing:
     external: true
   postgres_net:
 
@@ -33,7 +33,7 @@ services:
       restart_policy:
           condition: on-failure
     networks:
-      - traefik-net
+      - ingress-routing
       - postgres_net
 
   simpletracker:
@@ -53,7 +53,7 @@ services:
       restart_policy:
         condition: on-failure
     networks:
-      - traefik-net
+      - ingress-routing
       - postgres_net
 
   rest-server-cpp:
@@ -72,5 +72,5 @@ services:
       restart_policy:
         condition: on-failure
     networks:
-      - traefik-net
+      - ingress-routing
       - postgres_net
