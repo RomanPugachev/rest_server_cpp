@@ -1,3 +1,6 @@
+networks:
+  traefik-net:
+    external: true
 services:
   traefik:
     image: traefik:v3.1
@@ -28,3 +31,5 @@ services:
       mode: global
       restart_policy:
         condition: on-failure
+    networks:
+      - traefik-net
