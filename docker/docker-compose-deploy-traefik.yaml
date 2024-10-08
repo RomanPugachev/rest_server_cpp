@@ -1,3 +1,6 @@
+networks:
+  ingress-routing:
+    external: true
 services:
   traefik:
     image: traefik:v3.1
