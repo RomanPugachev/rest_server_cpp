@@ -19,16 +19,15 @@ services:
       - "443:443"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - ./letsencryt:/letsencrypt
+      - ${SERVER_PROJECT_PATH}/letsencryt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.simple-track.ru`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
     deploy:
       mode: global
-      endpoint_mode: vip
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.traefik.rule=Host(`traefik.simple-track.ru`)"
-        - "traefik.http.routers.traefik.service=api@internal"
-        - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
-        - "traefik.http.routers.traefik.tls.certresolver=myresolver"
       restart_policy:
         condition: on-failure
 
@@ -39,7 +38,7 @@ services:
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
     volumes:
-      - ./postgres_data:/var/lib/postgresql/data
+      - ${SERVER_PROJECT_PATH}/postgres_data:/var/lib/postgresql/data
     deploy:
       mode: global
       restart_policy:
@@ -49,14 +48,13 @@ services:
     image: sosedoff/pgweb:0.16.1
     environment:
       - PGWEB_DATABASE_URL=postgres://myuser:mypassword@postgres:5432/mydatabase?sslmode=disable
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgweb.rule=Host(`pgweb.simple-track.ru`)"
+      - "traefik.http.services.pgweb.loadbalancer.server.port=8081"
+      - "traefik.http.routers.pgweb.tls.certresolver=myresolver"
     deploy:
       mode: global
-      endpoint_mode: vip
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.pgweb.rule=Host(`pgweb.simple-track.ru`)"
-        - "traefik.http.services.pgweb.loadbalancer.server.port=8081"
-        - "traefik.http.routers.pgweb.tls.certresolver=myresolver"
       restart_policy:
           condition: on-failure
 
@@ -66,15 +64,14 @@ services:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.simpletracker.rule=Host(`main.simple-track.ru`)"
+      - "traefik.http.services.simpletracker.loadbalancer.server.port=8080"
+      - "traefik.http.routers.simpletracker.tls.certresolver=myresolver"
     deploy:
       mode: replicated
       replicas: 2
-      endpoint_mode: vip
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.simpletracker.rule=Host(`main.simple-track.ru`)"
-        - "traefik.http.services.simpletracker.loadbalancer.server.port=8080"
-        - "traefik.http.routers.simpletracker.tls.certresolver=myresolver"
       restart_policy:
         condition: on-failure
 
@@ -83,14 +80,13 @@ services:
     environment:
       DB_URL: postgres://myuser:mypassword@postgres:5432/mydatabase?sslmode=disable
       PORT: 8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rest-server-cpp.rule=Host(`cpp.simple-track.ru`)"
+      - "traefik.http.services.rest-server-cpp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.rest-server-cpp.tls.certresolver=myresolver"
     deploy:
       mode: replicated
       replicas: 2
-      endpoint_mode: vip
-      labels:
-        - "traefik.enable=true"
-        - "traefik.http.routers.rest-server-cpp.rule=Host(`cpp.simple-track.ru`)"
-        - "traefik.http.services.rest-server-cpp.loadbalancer.server.port=8080"
-        - "traefik.http.routers.rest-server-cpp.tls.certresolver=myresolver"
       restart_policy:
         condition: on-failure
