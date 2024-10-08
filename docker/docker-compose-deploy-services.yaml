@@ -26,8 +26,6 @@ services:
       mode: global
       restart_policy:
           condition: on-failure
-    networks:
-      - ingress
 
   simpletracker:
     image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest
@@ -45,8 +43,6 @@ services:
       replicas: 2
       restart_policy:
         condition: on-failure
-    networks:
-      - ingress
 
   rest-server-cpp:
     image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest
@@ -63,5 +59,3 @@ services:
       replicas: 2
       restart_policy:
         condition: on-failure
-    networks:
-      - ingress
