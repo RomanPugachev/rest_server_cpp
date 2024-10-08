@@ -30,7 +30,7 @@ jobs:
       with:
         ruby-version: '3.3' # Not needed with a `.ruby-version` or `.tool-versions`
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - run: gem install dry-stack:0.1.17
+    - run: gem install dry-stack:0.1.15
     - uses: appleboy/ssh-action@master      # Installing docker environment with docker swarm; creating project directory on server
       with:
         host: ${{ secrets.SERVER_HOST }}
