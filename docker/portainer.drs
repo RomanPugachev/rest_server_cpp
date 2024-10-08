@@ -3,7 +3,7 @@ Description <<~DCS
 DCS
 Labels 'stack.product': 'portainer'
 
-Options name: 'portainer' , traefik: true, traefik_tls: !!ENV['TLS_DOMAIN'] , tls_domain: ENV['TLS_DOMAIN']
+Options name: 'portainer'
 
 Ingress portainer: { host: 'portainer.*', port: '9000' }
 
