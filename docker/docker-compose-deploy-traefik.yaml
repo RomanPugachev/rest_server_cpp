@@ -1,0 +1,32 @@
+services:
+  traefik:
+    image: traefik:v3.1
+    command:
+      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
+      - "--providers.swarm.networks=traefik-net"
+      - "--api.dashboard=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=pugachev.ra@yandex.ru"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt.acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SERVER_PROJECT_PATH}/letsencryt:/letsencrypt
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.simple-track.ru`)"
+      - "traefik.http.routers.traefik.service=api@internal"
+      - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
+      - "traefik.http.routers.traefik.tls.certresolver=myresolver"
+    networks:
+      - traefik-net
+    deploy:
+      mode: global
+      restart_policy:
+        condition: on-failure

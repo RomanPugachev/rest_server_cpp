@@ -68,4 +68,5 @@ jobs:
         echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         docker context create remote-server --docker "host=ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
         docker context use remote-server 
-        docker stack deploy --compose-file ./docker/docker-compose-deploy.yaml --with-registry-auth -d stack_my_app 
+        docker stack deploy --compose-file ./docker/docker-compose-deploy-services.yaml --with-registry-auth -d main_stack
+        docker stack deploy --compose-file ./docker/docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
