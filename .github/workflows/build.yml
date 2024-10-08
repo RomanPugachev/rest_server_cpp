@@ -24,7 +24,7 @@ jobs:
 
   deploy-in-swarm:
 #    needs: build-push-deploy
-    runs-on: ubuntu-24.04
+    runs-on: ruby:3.3.0-alpine3.19
     steps:
     - uses: appleboy/ssh-action@master      # Installing docker environment with docker swarm; creating project directory on server
       with:
@@ -68,7 +68,9 @@ jobs:
         export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
         export CI_COMMIT_BRANCH=${{ github.ref_name }}
         export SERVER_PROJECT_PATH=${{ secrets.SERVER_PROJECT_PATH }}
-    
+
+        gem install dry-stack:0.1.17
+        dry-stack -s portainer.drs to_compose
         echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         docker context create remote-server --docker "host=ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
         docker context use remote-server 
