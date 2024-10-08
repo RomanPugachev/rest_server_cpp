@@ -4,8 +4,7 @@ services:
   traefik:
     image: traefik:v3.1
     command:
-      - "--providers.docker.swarmMode=true"
-      - "--api.insecure=true"
+      - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
       - "--api.dashboard=true"
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:80"
