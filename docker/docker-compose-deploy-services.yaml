@@ -27,7 +27,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.pgweb.rule=Host(`pgweb.simple-track.ru`)"
       - "traefik.http.services.pgweb.loadbalancer.server.port=8081"
-      - "traefik.http.routers.pgweb.tls.certresolver=myresolver"
+      - "traefik.http.routers.pgweb.tls.certresolver=le"
     deploy:
       mode: global
       restart_policy:
@@ -46,7 +46,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.simpletracker.rule=Host(`main.simple-track.ru`)"
       - "traefik.http.services.simpletracker.loadbalancer.server.port=8080"
-      - "traefik.http.routers.simpletracker.tls.certresolver=myresolver"
+      - "traefik.http.routers.simpletracker.tls.certresolver=le"
     deploy:
       mode: replicated
       replicas: 2
@@ -65,7 +65,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.rest-server-cpp.rule=Host(`cpp.simple-track.ru`)"
       - "traefik.http.services.rest-server-cpp.loadbalancer.server.port=8080"
-      - "traefik.http.routers.rest-server-cpp.tls.certresolver=myresolver"
+      - "traefik.http.routers.rest-server-cpp.tls.certresolver=le"
     deploy:
       mode: replicated
       replicas: 2
