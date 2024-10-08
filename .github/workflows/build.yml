@@ -62,6 +62,7 @@ jobs:
             docker network create --driver overlay ingress-routing
           fi
     - uses: actions/checkout@v3
+    # That's a comment
     - run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
@@ -74,12 +75,14 @@ jobs:
         export CI_COMMIT_BRANCH=${{ github.ref_name }}
         export SERVER_PROJECT_PATH=${{ secrets.SERVER_PROJECT_PATH }}
         export TLS_DOMAIN=simple-track.ru
-        dry-stack -s docker/portainer.drs to_compose
         echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         docker context create remote-server --docker "host=ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
         docker context use remote-server 
         docker stack deploy --compose-file ./docker/docker-compose-deploy-services.yaml --with-registry-auth -d main_stack
         docker stack deploy --compose-file ./docker/docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
+        dry-stack -s docker/portainer.drs to_compose
+        dry-stack -s docker/portainer.drs deploy -x ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} -- --prune --with-registry-auth
+
 
 
 
