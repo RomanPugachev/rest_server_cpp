@@ -51,7 +51,6 @@ services:
         condition: on-failure
     networks:
       - ingress-routing
-      - postgres_net
 
   rest-server-cpp:
     image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest
