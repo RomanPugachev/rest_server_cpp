@@ -60,14 +60,14 @@ Service :grafana, image: 'grafana/grafana:10.4.2', ports: 3000 do
   network :default
   config :grafana_datasources_yaml, target: '/etc/grafana/provisioning/datasources/datasources.yaml'
   config :grafana_dashboards_yaml, target: '/etc/grafana/provisioning/dashboards/main.yaml'
-  config target: '/var/lib/grafana/dashboards/traefik.json', file: './stack/dashboards/traefik.json'
-  config target: '/var/lib/grafana/dashboards/cadvisor.json', file: './stack/dashboards/cadvisor.json'
-  config target: '/var/lib/grafana/dashboards/cadvisor2.json', file: './stack/dashboards/cadvisor2.json'
-  config target: '/var/lib/grafana/dashboards/node_exporter.json', file: './stack/dashboards/node_exporter.json' # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
-  config target: '/var/lib/grafana/dashboards/swarm_stack.json', file: './stack/dashboards/swarm_stack.json' # https://grafana.com/grafana/dashboards/7007-swarm-stack-monitoring/
+  config target: '/var/lib/grafana/dashboards/traefik.json', file: './dashboards/traefik.json'
+  config target: '/var/lib/grafana/dashboards/cadvisor.json', file: './dashboards/cadvisor.json'
+  config target: '/var/lib/grafana/dashboards/cadvisor2.json', file: './dashboards/cadvisor2.json'
+  config target: '/var/lib/grafana/dashboards/node_exporter.json', file: './dashboards/node_exporter.json' # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
+  config target: '/var/lib/grafana/dashboards/swarm_stack.json', file: './dashboards/swarm_stack.json' # https://grafana.com/grafana/dashboards/7007-swarm-stack-monitoring/
 
-  config target: '/etc/grafana/provisioning/alerting/alert_rules.yaml', file: './stack/alerting/alert_rules.yaml'
-  config target: '/etc/grafana/provisioning/alerting/policies.yaml', file: './stack/alerting/policies.yaml'
+  config target: '/etc/grafana/provisioning/alerting/alert_rules.yaml', file: './alerting/alert_rules.yaml'
+  config target: '/etc/grafana/provisioning/alerting/policies.yaml', file: './alerting/policies.yaml'
 
   config target: '/etc/grafana/provisioning/alerting/contact_points.yaml', file_content: <<~YAML
     apiVersion: 1
