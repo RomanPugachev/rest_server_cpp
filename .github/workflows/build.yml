@@ -41,7 +41,7 @@ jobs:
           if ! [ -x "$(command -v docker)" ]; then
             echo "Docker not found, installing..."
             apt-get update
-            apt-get install -y docker.io docker-compose-plugin
+            apt-get install -y docker.io docker-compose-plugin swapspace
           fi
           if ! docker info | grep -q "Swarm: active"; then
             docker swarm init
