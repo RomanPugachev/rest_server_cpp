@@ -2,7 +2,6 @@
 networks:
   ingress-routing:
     external: true
-  postgres_net:
 
 services:
   postgres:
@@ -17,8 +16,7 @@ services:
       mode: global
       restart_policy:
         condition: on-failure
-    networks:
-      - postgres_net
+
   pgweb:
     image: sosedoff/pgweb:0.16.1
     environment:
@@ -34,7 +32,6 @@ services:
           condition: on-failure
     networks:
       - ingress-routing
-      - postgres_net
 
   simpletracker:
     image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest
@@ -73,4 +70,3 @@ services:
         condition: on-failure
     networks:
       - ingress-routing
-      - postgres_net

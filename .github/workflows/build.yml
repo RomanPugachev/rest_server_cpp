@@ -84,6 +84,7 @@ jobs:
         cd stack
         docker stack deploy --compose-file ./docker-compose-deploy-services.yaml --with-registry-auth -d main_stack
         docker stack deploy --compose-file ./docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
+        dry-stack -s portainer.drs swarm_deploy -x ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru -- --prune
 #        dry-stack -s grafana.drs to_compose
 #        dry-stack -s grafana.drs swarm_deploy -x ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru -- --prune
 
