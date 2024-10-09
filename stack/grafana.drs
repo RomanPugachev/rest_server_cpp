@@ -13,6 +13,7 @@ Ingress grafana: { host: 'tempo.*' },
         ], # use host: '*' to rise traefik rule priority up
         cadvisor: { host: 'cadvisor.*' }
 
+
 # get the name of the default network interface:
 # $ ifconfig -s -a
 # $ iptables -I DOCKER-USER -i eth0 -p tcp --destination-port 3100 -j REJECT
