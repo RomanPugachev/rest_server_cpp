@@ -1,0 +1,372 @@
+Description <<~DCS
+  Tempo
+DCS
+Labels 'stack.product': 'tempo'
+
+Options name: 'grafana' , traefik: true, traefik_tls: !!ENV['TLS_DOMAIN'] , tls_domain: ENV['TLS_DOMAIN']
+
+Ingress grafana: { host: 'tempo.*' },
+        otlp_collector: [{ host: 'otel.*' },
+                         { host: '*', path: '/otel', path_sub: ['^/otel(.*)', '$1'] },
+                         { host: 'otel.*', path: '/grpc', path_sub: ['^/grpc(.*)', '$1'], port: 4317 },
+                         { host: '*', path: '/otel/grpc', path_sub: ['^/otel\/grpc(.*)', '$1'], port: 4317 }
+        ], # use host: '*' to rise traefik rule priority up
+        cadvisor: { host: 'cadvisor.*' }
+
+# get the name of the default network interface:
+# $ ifconfig -s -a
+# $ iptables -I DOCKER-USER -i eth0 -p tcp --destination-port 3100 -j REJECT
+PublishPorts loki: [3100]
+
+Deploy [:loki, :otlp_collector_host, :cadvisor],
+       { 'placement.constraints': ['node.role == manager'] }
+
+Deploy [:node_exporter, :promtail], { mode: 'global' }
+
+Logging [:prometheus, :grafana, :tempo, :cadvisor], driver: 'loki', options: {
+  'loki-url': 'http://loki:3100/loki/api/v1/push',
+  'loki-batch-size': 100, 'loki-retries': 2, 'loki-max-backoff': '1000ms', 'loki-timeout': '1s' }
+
+Service :tempo, image: 'grafana/tempo:latest', ports: 4318 do
+  command '-config.file=/etc/tempo.yaml'
+  volume target: '/var/tempo', name: 'tempo_data'
+  config :tempo_yaml, target: '/etc/tempo.yaml'
+end
+
+Service :prometheus, image: 'prom/prometheus:latest' do
+  command %w[--web.enable-remote-write-receiver --enable-feature=exemplar-storage --config.file=/etc/prometheus.yaml]
+  network name: 'grafana-network', external: true
+  network :default
+  volume target: '/prometheus', name: 'prometheus_data'
+  config target: '/etc/prometheus.yaml', file_content: <<~YAML
+    global:
+      scrape_interval:     15s
+      evaluation_interval: 15s
+    scrape_configs: [
+      { job_name: "prometheus", static_configs: [ { targets: ["localhost:9090"] } ] },
+      { job_name: "tempo", static_configs: [ { targets: ["tempo:3200"] } ] },
+      { job_name: "cadvisor", static_configs: [ { targets: ["cadvisor:8080"] } ] },
+      { job_name: "docker_state_exporter", static_configs: [ { targets: ["docker_state_exporter:8080"] } ] },
+      { job_name: "node-exporter", static_configs: [ { targets: ["node_exporter:9100"] } ] },
+    ]
+  YAML
+end
+
+Service :grafana, image: 'grafana/grafana:10.4.2', ports: 3000 do
+  env GF_ADMIN_USER: 'admin'
+  env GF_ADMIN_PASSWORD: 'password'
+  env GF_AUTH_ANONYMOUS_ENABLED: false
+  network name: 'grafana-network', external: true
+  network :default
+  config :grafana_datasources_yaml, target: '/etc/grafana/provisioning/datasources/datasources.yaml'
+  config :grafana_dashboards_yaml, target: '/etc/grafana/provisioning/dashboards/main.yaml'
+  config target: '/var/lib/grafana/dashboards/traefik.json', file: './stack/dashboards/traefik.json'
+  config target: '/var/lib/grafana/dashboards/cadvisor.json', file: './stack/dashboards/cadvisor.json'
+  config target: '/var/lib/grafana/dashboards/cadvisor2.json', file: './stack/dashboards/cadvisor2.json'
+  config target: '/var/lib/grafana/dashboards/node_exporter.json', file: './stack/dashboards/node_exporter.json' # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
+  config target: '/var/lib/grafana/dashboards/swarm_stack.json', file: './stack/dashboards/swarm_stack.json' # https://grafana.com/grafana/dashboards/7007-swarm-stack-monitoring/
+
+  config target: '/etc/grafana/provisioning/alerting/alert_rules.yaml', file: './stack/alerting/alert_rules.yaml'
+  config target: '/etc/grafana/provisioning/alerting/policies.yaml', file: './stack/alerting/policies.yaml'
+
+  config target: '/etc/grafana/provisioning/alerting/contact_points.yaml', file_content: <<~YAML
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: TG logs
+        receivers:
+          - uid: adsd24d1c4av5a
+            type: telegram
+            settings:
+              bottoken: 5109412188:AAF5RtYj1p7vbYfBDYvDhl2B-cvc42Ex988
+              chatid: "-651562260"
+              disable_notification: false
+              disable_web_page_preview: false
+              message: |
+                <strong>Grafana (#{ENV['MAIN_DOMAIN']}):</strong> {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+                {{- range .Alerts.Firing }}
+                - [F] {{ index .Labels "alertname" }}: {{ .Annotations.summary }} {{ .Annotations.description }}
+                {{- end }}
+                {{- range .Alerts.Resolved }}
+                - [R] {{ index .Labels "alertname" }}: {{ .Annotations.summary }} {{ .Annotations.description }}
+                {{ end }}
+              parse_mode: HTML
+              protect_content: false
+            disableResolveMessage: false
+  YAML
+end
+
+Service :loki, image: 'grafana/loki:latest', ports: 3100 do
+  command <<~CC
+    -config.file=/etc/loki/local-config.yaml
+    -boltdb.shipper.compactor.ring.instance-addr=127.0.0.1
+    -distributor.ring.instance-addr=127.0.0.1
+    -frontend.instance-addr=127.0.0.1
+    -index-gateway.ring.instance-addr=127.0.0.1
+    -ingester.lifecycler.addr=127.0.0.1
+    -query-scheduler.ring.instance-addr=127.0.0.1
+    -ruler.ring.instance-addr=127.0.0.1
+  CC
+  network name: 'grafana-network', external: true
+  network :default
+  volume target: '/data', name: 'loki_data'
+  user '0:0'
+  config target: '/etc/loki/local-config.yaml', file_content: <<~YAML
+    auth_enabled: false
+    server:
+      http_listen_port: 3100
+    common:
+      ring:
+        instance_addr: 127.0.0.1
+        kvstore:
+          store: inmemory
+      replication_factor: 1
+      path_prefix: /data/loki
+    compactor:
+      working_directory: /data/loki/compactor
+      compaction_interval: 5m
+    schema_config:
+      configs:
+      - from: 2020-05-15
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+    storage_config:
+      filesystem:
+        directory: /data/loki/chunks
+  YAML
+end
+
+Service :promtail, image: 'grafana/promtail:latest' do
+  volume '/var/run/docker.sock:/var/run/docker.sock'  # Required for Docker API access
+  volume '/var/lib/docker/containers:/var/lib/docker/containers:ro'  # Container logs
+  volume '/var/log:/var/log'  # Access to system logs (e.g., Docker daemon logs)
+  volume target: '/etc/promtail'
+  command "-config.file=/etc/promtail/promtail-config.yml" #  --dry-run --inspect
+
+  network name: 'grafana-network', external: true
+  network :default
+  # deploy resources: { 'limits.memory': '500 M' }
+
+  config target: '/etc/promtail/promtail-config.yml', file_content: <<~YAML
+    server: { http_listen_port: 9080, grpc_listen_port: 0 }
+    positions: { filename: /var/log/positions.yaml }
+    clients: [ url: http://loki:3100/loki/api/v1/push ]
+
+    scrape_configs:
+      - job_name: journal
+        journal:
+          path: /var/log/journal
+          max_age: 1h
+          labels:
+            job: systemd-journal
+        relabel_configs:
+          - source_labels: [ __journal__hostname ]
+            target_label: hostname
+          - source_labels: [ __journal__systemd_unit ] # example label values: kubelet.service, containerd.service
+            target_label: unit
+          - source_labels: [ __journal_priority_keyword ] # example label values: debug, notice, info, warning, error
+            target_label: level
+  YAML
+end
+
+Service :cadvisor, image: 'fefx/gcr.io.cadvisor.cadvisor:v0.49.1', ports: 8080 do
+  volume '/:/rootfs:ro'
+  volume '/var/run:/var/run:ro'
+  volume '/sys:/sys:ro'
+  volume '/var/lib/docker/:/var/lib/docker:ro'
+  volume '/dev/disk/:/dev/disk:ro'
+  network name: 'grafana-network', external: true
+  network :default
+end
+
+Service :node_exporter, image: 'prom/node-exporter:latest', ports: 9100 do
+  volume '/:/host:ro,rslave'
+  # --collector.filesystem.mount-points-include=^/(var/lib/docker/.+|var/lib/swapspace|var/lib/log)($$|/)
+  command '--path.rootfs=/host'
+end
+
+Service :docker_state_exporter, image: 'karugaru/docker_state_exporter', ports: 8080 do
+  volume '/var/run/docker.sock:/var/run/docker.sock'
+end
+
+Service :otlp_collector, image: 'otel/opentelemetry-collector-contrib:0.102.0', ports: 4318 do
+  network name: 'grafana-network', external: true
+  network :default
+  config :otlp_yaml, target: '/etc/otelcol-contrib/config.yaml'
+end
+
+Config :otlp_yaml, file_content: <<~YAML
+    receivers:
+      otlp:
+        protocols:
+          http:
+          grpc:
+    exporters:
+  #    debug: 
+  #      verbosity: detailed
+  #      sampling_initial: 5
+  #      sampling_thereafter: 200
+      otlphttp/tempo:
+        endpoint: http://tempo:4318
+        tls:
+          insecure: true
+      prometheusremotewrite:
+        endpoint: http://prometheus:9090/api/v1/write
+        resource_to_telemetry_conversion:
+          enabled: true
+      loki:
+        endpoint: http://loki:3100/loki/api/v1/push
+        tls:
+          insecure: true
+    service:
+      pipelines:
+        traces:
+          receivers: [ otlp ]
+          exporters: [ otlphttp/tempo ]
+        metrics:
+          receivers: [ otlp]
+          exporters: [ prometheusremotewrite ]
+        logs:
+          receivers: [ otlp]
+          exporters: [ loki ]
+YAML
+
+Config :tempo_yaml, file_content: <<~YAML
+  # Defaults: https://github.com/grafana/tempo/blob/2870e82df7045b41c166da4a624ae8d68c0e6394/docs/sources/tempo/configuration/manifest.md?plain=1#L499
+  stream_over_http_enabled: true
+  server:
+    http_listen_port: 3200
+    log_level: info
+
+  query_frontend:
+    search:
+      duration_slo: 5s
+      throughput_bytes_slo: 1.073741824e+09
+    trace_by_id:
+      duration_slo: 5s
+
+  distributor:
+    receivers:                           # this configuration will listen on all ports and protocols that tempo is capable of.
+      otlp:
+        protocols:
+          http:
+
+  metrics_generator:
+    # https://grafana.com/docs/tempo/latest/configuration/#metrics-generator
+    processor:
+      # Span metrics create metrics based on span type, duration, name and service.
+      span_metrics:
+        # Configure extra dimensions to add as metric labels.
+        dimensions:
+          - deployment.environment
+      service_graphs:
+        # Enables additional labels for services and virtual nodes.
+        enable_virtual_node_label: true
+        peer_attributes:
+          - peer.service
+          - service.name # +
+          - host.name # +
+          - db.name
+          - db.system
+        dimensions:
+          - deployment.environment
+
+    registry:
+      external_labels:
+        source: tempo
+        cluster: docker-compose
+    storage:
+      path: /var/tempo/generator/wal
+      remote_write:
+        - url: http://prometheus:9090/api/v1/write
+          send_exemplars: true
+    traces_storage:
+      path: /var/tempo/generator/traces
+
+  # The compactor block configures the compactor responsible for compacting TSDB blocks.
+  compactor:
+    compaction:
+      compaction_window: 1h              # Blocks in this time window will be compacted together.
+      max_block_bytes: 100_000_000       # Maximum size of a compacted block.
+      block_retention: 168h              # 24+7 = 168, How long to keep blocks. Default is 14 days, this demo system is short-lived.
+      compacted_block_retention: 1h      # How long to keep compacted blocks stored elsewhere.
+
+  storage:
+    trace:
+      backend: local                     # backend configuration to use
+      wal:
+        path: /var/tempo/wal             # where to store the the wal locally
+      local:
+        path: /var/tempo/blocks
+
+  overrides:
+    defaults:
+      metrics_generator:
+        # https://grafana.com/docs/tempo/latest/configuration/#overrides
+        processors: [service-graphs, span-metrics, local-blocks] # enables metrics generator
+
+YAML
+
+Config :grafana_datasources_yaml, file_content: <<~YAML
+  apiVersion: 1
+
+  datasources:
+  - name: Loki # Отображаемое имя нашего источника данных
+    type: loki # Тип источника
+    access: proxy #
+    orgId: 1 # Идентификатор организации (единица адм. деления в Grafana) которой будет доступен источник
+    url: http://loki:3100 # Адрес откуда получать данные (здесь мы используем имя сервиса loki, т. к. компоуз создаст свою сеть в которой к контейнерам можно обращаться по имени compose-сервиса)
+    basicAuth: false # Для удобства демонстрации в Loki отключена авторизация, поэтому и тут она не зачем
+    isDefault: false #
+    version: 1 #
+    editable: false # Зпретим редактирование через интерфейс Grafana
+  - name: Prometheus
+    type: prometheus
+    uid: prometheus
+    access: proxy
+    orgId: 1
+    url: http://prometheus:9090
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: false
+    jsonData:
+      httpMethod: GET
+  - name: Tempo
+    type: tempo
+    access: proxy
+    orgId: 1
+    url: http://tempo:3200
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: false
+    apiVersion: 1
+    uid: tempo
+    jsonData:
+      # httpMethod: GET
+      serviceMap:
+        datasourceUid: prometheus
+YAML
+
+Config :grafana_dashboards_yaml, file_content: <<~YAML
+  apiVersion: 1
+
+  providers:
+    - name: "Dashboard provider"
+      orgId: 1
+      type: file
+      disableDeletion: false
+      updateIntervalSeconds: 10
+      allowUiUpdates: false
+      options:
+        path: /var/lib/grafana/dashboards
+        foldersFromFilesStructure: true
+YAML
+
+# Network :grafana_network, external: true , name: 'grafana-network'

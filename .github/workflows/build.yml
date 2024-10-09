@@ -79,8 +79,8 @@ jobs:
         docker context use remote-server 
         docker stack deploy --compose-file ./docker/docker-compose-deploy-services.yaml --with-registry-auth -d main_stack
         docker stack deploy --compose-file ./docker/docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
-        dry-stack -s docker/portainer.drs to_compose
-        dry-stack -s docker/portainer.drs swarm_deploy -x ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru -- --prune
+        dry-stack -s docker/grafana.drs to_compose
+        dry-stack -s docker/grafana.drs swarm_deploy -x ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru -- --prune
 
 
 
