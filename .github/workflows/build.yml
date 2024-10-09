@@ -64,6 +64,7 @@ jobs:
           if ! docker network ls | grep -q "grafana-network"; then
             docker network create --driver overlay grafana-network
           fi
+          docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
     # Grafana's net will be created
     - uses: actions/checkout@v3
     # That's a comment
