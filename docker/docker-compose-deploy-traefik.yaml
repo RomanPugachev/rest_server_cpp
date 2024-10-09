@@ -27,10 +27,13 @@ services:
       - ${SERVER_PROJECT_PATH}/letsencryt:/letsencrypt
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.traefik.tls=true"
+      - "traefik.http.routers.traefik.tls.domains[0].main=traefik.simple-track.ru"
+      - "traefik.http.routers.traefik.tls.certresolver=le"
       - "traefik.http.routers.traefik.rule=Host(`traefik.simple-track.ru`)"
       - "traefik.http.routers.traefik.service=api@internal"
       - "traefik.http.services.traefik-dashboard.loadbalancer.server.port=8080"
-      - "traefik.http.routers.traefik.tls.certresolver=le"
+
     deploy:
       mode: global
       restart_policy:
