@@ -6,6 +6,7 @@ services:
     image: traefik:v3.1
     command:
       - "--providers.swarm.endpoint=unix:///var/run/docker.sock"
+      - "--providers.swarm.network=ingress-routing"
       - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--providers.docker.exposedbydefault=false"
