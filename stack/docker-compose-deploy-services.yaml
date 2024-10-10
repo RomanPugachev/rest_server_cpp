@@ -12,11 +12,11 @@ services:
       POSTGRES_USER: ${POSTGRES_DB_USER}
       POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
     volumes:
-      - ${SERVER_PROJECT_PATH}/postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
     deploy:
-      mode: global
-      restart_policy:
-        condition: on-failure
+      placement:
+        constraints:
+          - node.role == manager
     networks:
       - postgres_net
   pgweb:
@@ -27,11 +27,9 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.pgweb.rule=Host(`pgweb.simple-track.ru`)"
       - "traefik.http.services.pgweb.loadbalancer.server.port=8081"
+      - "traefik.http.routers.pgweb.tls=true"
       - "traefik.http.routers.pgweb.tls.certresolver=le"
-    deploy:
-      mode: global
-      restart_policy:
-          condition: on-failure
+
     networks:
       - ingress-routing
       - postgres_net
@@ -46,6 +44,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.simpletracker.rule=Host(`main.simple-track.ru`)"
       - "traefik.http.services.simpletracker.loadbalancer.server.port=8080"
+      - "traefik.http.routers.simpletracker.tls=true"
       - "traefik.http.routers.simpletracker.tls.certresolver=le"
     networks:
       - ingress-routing
@@ -60,6 +59,7 @@ services:
       - "traefik.enable=true"
       - "traefik.http.routers.rest-server-cpp.rule=Host(`cpp.simple-track.ru`)"
       - "traefik.http.services.rest-server-cpp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.rest-server-cpp.tls=true"
       - "traefik.http.routers.rest-server-cpp.tls.certresolver=le"
 
   python-api:
@@ -71,9 +71,12 @@ services:
       FLASK_APP_PORT: 8080
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.simpletracker.rule=Host(`flask.simple-track.ru`)"
-      - "traefik.http.services.simpletracker.loadbalancer.server.port=8080"
-      - "traefik.http.routers.simpletracker.tls.certresolver=le"
+      - "traefik.http.routers.python-api.rule=Host(`flask.simple-track.ru`)"
+      - "traefik.http.services.python-api.loadbalancer.server.port=8080"
+      - "traefik.http.routers.python-api.tls=true"
+      - "traefik.http.routers.python-api.tls.certresolver=le"
     networks:
       - ingress-routing
       - postgres_net
+volumes:
+  postgres_data:
