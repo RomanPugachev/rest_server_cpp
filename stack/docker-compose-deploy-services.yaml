@@ -19,7 +19,6 @@ services:
         condition: on-failure
     networks:
       - postgres_net
-      -
   pgweb:
     image: sosedoff/pgweb:0.16.1
     environment:
