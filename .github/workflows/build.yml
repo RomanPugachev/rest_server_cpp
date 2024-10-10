@@ -23,7 +23,7 @@ jobs:
           docker buildx bake -f docker-compose.yml --push
 
   deploy-in-swarm:
-    needs: build-push-deploy
+    needs: build-push
     runs-on: ubuntu-24.04
     steps:
     - uses: ruby/setup-ruby@v1
