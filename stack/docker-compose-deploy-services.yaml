@@ -55,6 +55,9 @@ services:
     environment:
       DB_URL: postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
       PORT: 8080
+    networks:
+      - ingress-routing
+      - postgres_net
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.rest-server-cpp.rule=Host(`cpp.simple-track.ru`)"
