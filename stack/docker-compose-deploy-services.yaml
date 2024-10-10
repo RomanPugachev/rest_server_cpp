@@ -22,7 +22,7 @@ services:
   pgweb:
     image: sosedoff/pgweb:0.16.1
     environment:
-      - PGWEB_DATABASE_URL=postgres://${POSTGRESS_DB_USER}:${POSTGRESS_DB_PASSWORD}@postgres:5432/${POSTGRESS_DB}?sslmode=disable
+      - PGWEB_DATABASE_URL=postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pgweb.rule=Host(`pgweb.simple-track.ru`)"
@@ -39,9 +39,9 @@ services:
   simpletracker:
     image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest
     environment:
-      POSTGRES_DB: ${POSTGRESS_DB}
-      POSTGRES_USER: ${POSTGRESS_DB_USER}
-      POSTGRES_PASSWORD: ${POSTGRESS_DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.simpletracker.rule=Host(`main.simple-track.ru`)"
@@ -54,7 +54,7 @@ services:
   rest-server-cpp:
     image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest
     environment:
-      DB_URL: postgres://${POSTGRESS_DB_USER}:${POSTGRESS_DB_PASSWORD}@postgres:5432/${POSTGRESS_DB}?sslmode=disable
+      DB_URL: postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
       PORT: 8080
     labels:
       - "traefik.enable=true"
@@ -65,9 +65,9 @@ services:
   python-api:
     image: ${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}
     environment:
-      POSTGRES_DB: ${POSTGRESS_DB}
-      POSTGRES_USER: ${POSTGRESS_DB_USER}
-      POSTGRES_PASSWORD: ${POSTGRESS_DB_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
       FLASK_APP_PORT: 8080
     labels:
       - "traefik.enable=true"
