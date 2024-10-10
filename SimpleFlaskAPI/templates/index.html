@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beautiful Flask Homepage</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #000; /* Black background */
+            color: #f0e68c; /* Light Yellow text */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            color: #FFD700; /* Yellow heading */
+        }
+        p {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            color: #1E90FF; /* Blue text */
+        }
+        img {
+            width: 150px;
+            height: auto;
+            margin-bottom: 20px;
+            animation: rotateIn 3s infinite alternate ease-in-out;
+        }
+        .btn {
+            padding: 12px 24px;
+            background-color: #1E90FF; /* Blue button */
+            color: #fff;
+            text-decoration: none;
+            font-size: 1.2em;
+            border-radius: 5px;
+            transition: transform 0.3s, background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #FFD700; /* Yellow on hover */
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes rotateIn {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Flask Logo -->
+    <img src="{{ url_for('static', filename='images/dev-ops.png')}}" alt="Flask Logo">
+
+    <!-- Main Heading -->
+    <h1>Welcome to Our Flask App</h1>
+
+    <!-- Subtitle -->
+    <p>A minimal yet stylish homepage with modern design and animations.</p>
+
+    <!-- Call-to-action Button -->
+    <a class="btn" href="#">Get Started</a>
+</div>
+</body>
+</html>
