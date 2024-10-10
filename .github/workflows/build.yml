@@ -12,7 +12,7 @@ jobs:
 #        with:
 #          registry: ghcr.io
 #          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
+#          password: ${{ GITHUB_TOKEN }}
 #      - uses: docker/setup-buildx-action@v2
 #      - run: |
 #          cd docker
@@ -33,10 +33,10 @@ jobs:
     - run: gem install dry-stack:0.1.20
     - uses: appleboy/ssh-action@master      # Installing docker environment with docker swarm; creating project directory on server
       with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
+        host: ${{ SERVER_HOST }}
+        username: ${{ SERVER_USERNAME }}
+        key: ${{ SERVER_SSH_KEY }}
+        passphrase: ${{ SERVER_SSH_KEY_PASSPHRASE }}
         script: |
           if ! [ -x "$(command -v docker)" ]; then
             echo "Docker not found, installing..."
@@ -48,14 +48,14 @@ jobs:
           else
             echo "This node is already part of a swarm, skipping 'docker swarm init'."
           fi           
-          if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}" ]; then
-            mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}
+          if [ ! -d "${{ SERVER_PROJECT_PATH }}" ]; then
+            mkdir -p ${{ SERVER_PROJECT_PATH }}
           fi
-          if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}/letsencryt" ]; then
-            mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}/letsencryt
+          if [ ! -d "${{ SERVER_PROJECT_PATH }}/letsencryt" ]; then
+            mkdir -p ${{ SERVER_PROJECT_PATH }}/letsencryt
           fi
-          if [ ! -d "${{ secrets.SERVER_PROJECT_PATH }}/postgres_data" ]; then
-            mkdir -p ${{ secrets.SERVER_PROJECT_PATH }}/postgres_data
+          if [ ! -d "${{ SERVER_PROJECT_PATH }}/postgres_data" ]; then
+            mkdir -p ${{ SERVER_PROJECT_PATH }}/postgres_data
           fi
           
           if ! docker network ls | grep -q "ingress-routing"; then
@@ -76,22 +76,22 @@ jobs:
         secrets: ${{ toJSON(secrets) }}
     - run: |
         mkdir -p ~/.ssh
-        echo "${{ secrets.SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
-        echo "${{ secrets.SERVER_SSH_KEY_PUB }}" > ~/.ssh/id_rsa.pub
+        echo "${{ SERVER_SSH_KEY }}" > ~/.ssh/id_rsa
+        echo "${{ SERVER_SSH_KEY_PUB }}" > ~/.ssh/id_rsa.pub
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
+        ssh-keyscan -H ${{ SERVER_HOST }} >> ~/.ssh/known_hosts
         export $(grep -v '^#' .env | xargs)
         export REPOSITORY_OWNER=${{ github.repository_owner}}
         export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
         export CI_COMMIT_BRANCH=${{ github.ref_name }}
         
-        echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        docker context create remote-server --docker "host=ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
+        echo "${{ SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        docker context create remote-server --docker "host=ssh://${{ SERVER_USERNAME }}@${{ SERVER_HOST }}"
         docker context use remote-server 
         cd stack
         docker stack deploy --compose-file ./docker-compose-deploy-services.yaml --with-registry-auth -d main_stack
         docker stack deploy --compose-file ./docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
-        dry-stack -s portainer.drs swarm_deploy -x ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru -- --prune
+        dry-stack -s portainer.drs swarm_deploy -x ssh://${{ SERVER_USERNAME }}@${{ SERVER_HOST }} --tls-domain simple-track.ru -- --prune
         dry-stack -s grafana.drs to_compose
-        dry-stack -s grafana.drs swarm_deploy -x ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} --tls-domain simple-track.ru -- --prune
+        dry-stack -s grafana.drs swarm_deploy -x ssh://${{ SERVER_USERNAME }}@${{ SERVER_HOST }} --tls-domain simple-track.ru -- --prune
         
