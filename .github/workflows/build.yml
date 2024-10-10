@@ -71,7 +71,7 @@ jobs:
               echo "Grafana Loki Docker driver plugin is already installed."
           fi
     - uses: actions/checkout@v3
-    - uses: thaind0/envfile@v1
+    - uses: thaind0/envfile@v1.1
       with:
         secrets: ${{ toJSON(secrets) }}
     - run: |
