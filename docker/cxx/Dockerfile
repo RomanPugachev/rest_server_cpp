@@ -28,6 +28,6 @@ COPY --from=build /app/config.json /app
 
 ENV PORT=8080
 
-HEALTHCHECK --interval=2m --timeout=30s --start-period=3m --retries=3 \
-    CMD curl -f http://localhost:$PORT/healthcheck
+#HEALTHCHECK --interval=2m --timeout=30s --start-period=3m --retries=3 \
+#    CMD curl -f http://localhost:$PORT/healthcheck
 CMD ./rest_server -p $PORT
