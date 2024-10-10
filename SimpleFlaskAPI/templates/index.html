@@ -13,8 +13,8 @@
         }
         body {
             font-family: 'Roboto', sans-serif;
-            background-color: #000; /* Black background */
-            color: #f0e68c; /* Light Yellow text */
+            background-color: #ffffff; /* White background */
+            color: #1E90FF; /* Blue text */
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -27,12 +27,12 @@
         h1 {
             font-size: 3em;
             margin-bottom: 10px;
-            color: #FFD700; /* Yellow heading */
+            color: #1E90FF; /* Blue heading */
         }
         p {
             font-size: 1.3em;
             margin-bottom: 20px;
-            color: #1E90FF; /* Blue text */
+            color: #1E90FF; /* Blue paragraph */
         }
         img {
             width: 150px;
@@ -50,8 +50,8 @@
             transition: transform 0.3s, background-color 0.3s;
         }
         .btn:hover {
-            background-color: #FFD700; /* Yellow on hover */
-            color: #000;
+            background-color: #000; /* Black on hover */
+            color: #fff;
             transform: scale(1.1);
         }
 
@@ -69,7 +69,7 @@
 <body>
 <div class="container">
     <!-- Flask Logo -->
-    <img src="{{ url_for('static', filename='images/dev-ops.png')}}" alt="Flask Logo">
+    <img src="{{ url_for('static', filename='images/flask-logo.png') }}" alt="Flask Logo">
 
     <!-- Main Heading -->
     <h1>Welcome to Our Flask App</h1>
