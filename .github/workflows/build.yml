@@ -82,9 +82,9 @@ jobs:
         export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
         export CI_COMMIT_BRANCH=${{ github.ref_name }}
         export SERVER_PROJECT_PATH=${{ secrets.SERVER_PROJECT_PATH }}
-        export POSTGRES_DB=${{ github.POSTGRES_DB }}
-        export POSTGRES_DB_USER=${{ github.POSTGRES_DB_USER }}
-        export POSTGRES_DB_PASSWORD=${{ github.POSTGRES_DB_PASSWORD }}
+        export POSTGRES_DB=${{ secrets.POSTGRES_DB }}
+        export POSTGRES_DB_USER=${{ secrets.POSTGRES_DB_USER }}
+        export POSTGRES_DB_PASSWORD=${{ secrets.POSTGRES_DB_PASSWORD }}
         echo "${{ secrets.SERVER_AUTHORIZE_REGISRY_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         docker context create remote-server --docker "host=ssh://${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}"
         docker context use remote-server 
