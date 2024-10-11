@@ -16,7 +16,9 @@ services:
     init: true
     image: postgres:17
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - target: "/var/lib/postgresql/data"
+        type: volume
+        source: main_stack_postgres-volume-0
   pgweb1:
     environment:
       PGWEB_DATABASE_URL: postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
@@ -91,6 +93,9 @@ services:
       ingress_routing:
     init: true
     image: "${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}"
+volumes:
+  main_stack_postgres-volume-0:
+    name: postgres_data
 networks:
   postgres_net:
   ingress_routing:
