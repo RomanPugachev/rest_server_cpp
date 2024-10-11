@@ -1,6 +1,6 @@
 Options name: 'traefik_stack'
 
-Ingress traefik: { host: 'traefik.*', port:8080 }
+Ingress traefik: { host: 'traefik.*', port:8080, basic_auth: 'admin:admin:i7hdbc9g' }
 
 Deploy [:traefik], { 'placement.constraints': ['node.role == manager'] }
 
@@ -9,6 +9,9 @@ PublishPorts traefik: [80, 443]
 Service :traefik, image: 'traefik:v3.1', ports: [80, 443] do
   volume '/var/run/docker.sock:/var/run/docker.sock'
   volume target: '/letsencrypt', name: 'letsencrypt'
+  volume target: '/certificates', name: 'letsencrypt'
+
+  network name: 'grafana-network', external: true
   command <<~CC
       --core.defaultRuleSyntax=v2
       --providers.swarm.endpoint=unix:///var/run/docker.sock
@@ -20,11 +23,21 @@ Service :traefik, image: 'traefik:v3.1', ports: [80, 443] do
       --entrypoints.https.http.tls=true
       --entrypoints.https.http.tls.certResolver=le
       --entrypoints.websecure.address=:443
+      --certificatesresolvers.le.acme.tlschallenge=true
       --certificatesresolvers.le.acme.httpchallenge=true
       --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
       --certificatesresolvers.le.acme.email=pugachev.ra@yandex.ru
       --certificatesresolvers.le.acme.storage=/letsencrypt.acme.json
+      --metrics.otlp=true
+      --metrics.otlp.addEntryPointsLabels=true
+      --metrics.otlp.addRoutersLabels=true
+      --metrics.otlp.addServicesLabels=true
+      --metrics.otlp.pushInterval=10s
+      --metrics.otlp.http.endpoint=http://otlp_collector:4318/v1/metrics
+      --metrics.otlp.http.tls.insecureSkipVerify=true
       --api
       --api.insecure=true
+      --accesslog
+      --log
   CC
 end
