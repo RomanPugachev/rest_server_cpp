@@ -1,4 +1,5 @@
-# Test comment
+Options name: "main_stack"
+
 Network :ingress_routing, external: true
 Network :postgres_net
 
