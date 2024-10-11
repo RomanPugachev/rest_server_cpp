@@ -59,25 +59,25 @@ int main(int argc, char* argv[]) {
 
 	drogon::app().loadConfigFile("./config.json");
 
-	orm::PostgresConfig db_config;
-	const char* db_url = std::getenv("DB_URL");
-	if (db_url == nullptr) {
-		throw std::runtime_error("DB_URL environment variable is not set");
-	}
-	parseConnectionString(db_url, db_config);
-
-	db_config.name = "default";
-	db_config.autoBatch = false;
-	db_config.characterSet = "utf8";
-	db_config.isFast = true;
-	db_config.connectionNumber = 10;
-	db_config.timeout = 10;
-	db_config.connectOptions = {
-								   {"statement_timeout", "3s"},
-								   {"lock_timeout", "0.5s"},
-							   } ;
-
-	app().addDbClient(db_config);
+//	orm::PostgresConfig db_config;
+//	const char* db_url = std::getenv("DB_URL");
+//	if (db_url == nullptr) {
+//		throw std::runtime_error("DB_URL environment variable is not set");
+//	}
+//	parseConnectionString(db_url, db_config);
+//
+//	db_config.name = "default";
+//	db_config.autoBatch = false;
+//	db_config.characterSet = "utf8";
+//	db_config.isFast = true;
+//	db_config.connectionNumber = 10;
+//	db_config.timeout = 10;
+//	db_config.connectOptions = {
+//								   {"statement_timeout", "3s"},
+//								   {"lock_timeout", "0.5s"},
+//							   } ;
+//
+//	app().addDbClient(db_config);
 
 	app().setLogLevel(trantor::Logger::kTrace)
 		.addListener("0.0.0.0", options["port"].as<int>())
