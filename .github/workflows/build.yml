@@ -80,7 +80,8 @@ jobs:
         docker context create remote-server --docker "host=ssh://$SERVER_USERNAME@$SERVER_HOST"
         docker context use remote-server 
         cd stack
-        docker stack deploy --compose-file ./docker-compose-deploy-services.yaml --with-registry-auth -d main_stack
+        dry-stack -s services.drs to_compose
+        dry-stack -s services.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
         docker stack deploy --compose-file ./docker-compose-deploy-traefik.yaml --with-registry-auth -d traefik_stack
         dry-stack -s portainer.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
         dry-stack -s grafana.drs to_compose
