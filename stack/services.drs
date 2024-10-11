@@ -16,4 +16,9 @@ DB_URL = 'postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/$
 Service :pgweb, image: 'sosedoff/pgweb:0.16.1', env: { PGWEB_DATABASE_URL: DB_URL }, ports: 8081
 Service :spring, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080
 Service :cpp, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080
-Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080
+Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080 do
+  network 'grafana-network', external: true
+  env OTEL_EXPORTER_OTLP_ENDPOINT: "http://otlp_collector:4318/",
+      OTEL_RESOURCE_ATTRIBUTES: 'deployment.environment=%{stack-name},service.name=%{service-name}',
+      OTEL_TRACES_EXPORTER:'otlp'
+end
