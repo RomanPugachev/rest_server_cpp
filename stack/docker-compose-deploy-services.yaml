@@ -1,0 +1,85 @@
+# Test comment
+networks:
+  ingress-routing:
+    external: true
+  postgres_net:
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    networks:
+      - postgres_net
+  pgweb:
+    image: sosedoff/pgweb:0.16.1
+    environment:
+      - PGWEB_DATABASE_URL=postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.pgweb.rule=Host(`pgweb.simple-track.ru`)"
+      - "traefik.http.services.pgweb.loadbalancer.server.port=8081"
+      - "traefik.http.routers.pgweb.tls=true"
+      - "traefik.http.routers.pgweb.tls.certresolver=le"
+
+    networks:
+      - ingress-routing
+      - postgres_net
+
+  simpletracker:
+    image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.simpletracker.rule=Host(`main.simple-track.ru`)"
+      - "traefik.http.services.simpletracker.loadbalancer.server.port=8080"
+      - "traefik.http.routers.simpletracker.tls=true"
+      - "traefik.http.routers.simpletracker.tls.certresolver=le"
+    networks:
+      - ingress-routing
+      - postgres_net
+
+  rest-server-cpp:
+    image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest
+    environment:
+      DB_URL: postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+      PORT: 8080
+    networks:
+      - ingress-routing
+      - postgres_net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.rest-server-cpp.rule=Host(`cpp.simple-track.ru`)"
+      - "traefik.http.services.rest-server-cpp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.rest-server-cpp.tls=true"
+      - "traefik.http.routers.rest-server-cpp.tls.certresolver=le"
+
+  python-api:
+    image: ${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_DB_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_DB_PASSWORD}
+      FLASK_APP_PORT: 8080
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.python-api.rule=Host(`flask.simple-track.ru`)"
+      - "traefik.http.services.python-api.loadbalancer.server.port=8080"
+      - "traefik.http.routers.python-api.tls=true"
+      - "traefik.http.routers.python-api.tls.certresolver=le"
+    networks:
+      - ingress-routing
+      - postgres_net
+volumes:
+  postgres_data:
