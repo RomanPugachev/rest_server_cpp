@@ -1,0 +1,30 @@
+Options name: 'traefik_stack'
+
+Ingress traefik: { host: 'traefik.*', port:8080 }
+
+Deploy [:traefik], { 'placement.constraints': ['node.role == manager'] }
+
+PublishPorts traefik: [80, 443]
+
+Service :traefik, image: 'traefik:v3.1', ports: [80, 443] do
+  volume '/var/run/docker.sock:/var/run/docker.sock'
+  volume target: '/letsencrypt', name: 'letsencrypt'
+  command <<~CC
+      --core.defaultRuleSyntax=v2
+      --providers.swarm.endpoint=unix:///var/run/docker.sock
+      --providers.swarm.network=ingress-routing
+      --api.insecure=true
+      --api.dashboard=true
+      --providers.docker.exposedbydefault=false
+      --entrypoints.web.address=:80
+      --entrypoints.https.http.tls=true
+      --entrypoints.https.http.tls.certResolver=le
+      --entrypoints.websecure.address=:443
+      --certificatesresolvers.le.acme.httpchallenge=true
+      --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+      --certificatesresolvers.le.acme.email=pugachev.ra@yandex.ru
+      --certificatesresolvers.le.acme.storage=/letsencrypt.acme.json
+      --api
+      --api.insecure=true
+  CC
+end

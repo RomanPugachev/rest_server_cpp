@@ -1,48 +1,19 @@
 Options name: "main_stack"
 
-Ingress pgweb1: { host: 'pgweb1.*' },
-        cpp1: {host: 'cpp1.*'},
-        flask1: {host: 'flask1.*' },
-        spring1: {host: 'spring1.*' }
+Ingress pgweb:  [ { host: 'pgweb1.*' }, { host: 'pgweb2.*' } ],
+        cpp:    { host: 'cpp1.*'},
+        flask:  { host: 'flask1.*' },
+        spring: { host: 'spring1.*' }
 
 Deploy [:postgres], { 'placement.constraints': ['node.role == manager'] }
 
 Service :postgres, image: 'postgres:17' do
-  env POSTGRES_DB: '${POSTGRES_DB}'
-  env POSTGRES_USER: '${POSTGRES_USER}'
-  env POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+  env POSTGRES_DB: '${POSTGRES_DB}', POSTGRES_DB_USER: '${POSTGRES_DB_USER}', POSTGRES_DB_PASSWORD: '${POSTGRES_DB_PASSWORD}'
   volume target: '/var/lib/postgresql/data', name: 'postgres_data'
-  network 'postgres_net'
 end
 
-Service :pgweb1, image: 'sosedoff/pgweb:0.16.1', ports: 8081 do
-  env PGWEB_DATABASE_URL: 'postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable'
-  network 'postgres_net'
-  network 'ingress-routing', external: true
-end
-
-Service :spring1, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
-  env POSTGRES_DB: '${POSTGRES_DB}'
-  env POSTGRES_USER: '${POSTGRES_USER}'
-  env POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-  network 'postgres_net'
-  network 'ingress-routing', external: true
-end
-
-Service :cpp1, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
-  env POSTGRES_DB: '${POSTGRES_DB}'
-  env POSTGRES_USER: '${POSTGRES_USER}'
-  env POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-  network 'postgres_net'
-  network 'ingress-routing', external: true
-end
-
-Service :flask1, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
-  env POSTGRES_DB: '${POSTGRES_DB}'
-  env POSTGRES_USER: '${POSTGRES_USER}'
-  env POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
-  network 'postgres_net'
-  network 'ingress-routing', external: true
-end
-
-Network :postgres_net, name: 'postgres_net', driver: 'overlay'
+DB_URL = 'postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable'
+Service :pgweb, image: 'sosedoff/pgweb:0.16.1', env: { PGWEB_DATABASE_URL: DB_URL }, ports: 8081
+Service :spring, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080
+Service :cpp, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080
+Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080

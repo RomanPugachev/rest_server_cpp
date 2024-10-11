@@ -1,6 +1,3 @@
-networks:
-  ingress-routing:
-    external: true
 services:
   traefik:
     image: traefik:v3.1
@@ -44,3 +41,7 @@ services:
 volumes:
   letsencryt:
     name: letsencryt
+
+networks:
+  ingress-routing:
+    external: true

@@ -3,8 +3,8 @@ services:
   postgres:
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB_USER: "${POSTGRES_DB_USER}"
+      POSTGRES_DB_PASSWORD: "${POSTGRES_DB_PASSWORD}"
       STACK_NAME: main_stack
       STACK_SERVICE_NAME: postgres
     deploy:
@@ -39,8 +39,8 @@ services:
   spring1:
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB_USER: "${POSTGRES_DB_USER}"
+      POSTGRES_DB_PASSWORD: "${POSTGRES_DB_PASSWORD}"
       STACK_NAME: main_stack
       STACK_SERVICE_NAME: spring1
     deploy:
@@ -58,8 +58,8 @@ services:
   cpp1:
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB_USER: "${POSTGRES_DB_USER}"
+      POSTGRES_DB_PASSWORD: "${POSTGRES_DB_PASSWORD}"
       STACK_NAME: main_stack
       STACK_SERVICE_NAME: cpp1
     deploy:
@@ -77,8 +77,8 @@ services:
   flask1:
     environment:
       POSTGRES_DB: "${POSTGRES_DB}"
-      POSTGRES_USER: "${POSTGRES_USER}"
-      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB_USER: "${POSTGRES_DB_USER}"
+      POSTGRES_DB_PASSWORD: "${POSTGRES_DB_PASSWORD}"
       STACK_NAME: main_stack
       STACK_SERVICE_NAME: flask1
     deploy:
