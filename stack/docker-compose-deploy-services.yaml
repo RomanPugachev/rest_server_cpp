@@ -19,6 +19,8 @@ services:
           - node.role == manager
     networks:
       - postgres_net
+
+
   pgweb:
     image: sosedoff/pgweb:0.16.1
     environment:

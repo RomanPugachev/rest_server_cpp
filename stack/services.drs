@@ -1,61 +1,48 @@
 Options name: "main_stack"
 
-Network :ingress_routing, external: true
-Network :postgres_net
+Ingress pgweb1: { host: 'pgweb1.*' },
+        cpp1: {host: 'cpp1.*'},
+        flask1: {host: 'flask1.*' },
+        spring1: {host: 'spring1.*' }
+
+Deploy [:postgres], { 'placement.constraints': ['node.role == manager'] }
 
 Service :postgres, image: 'postgres:17' do
-  env POSTGRES_DB: '${POSTGRES_DB}', POSTGRES_USER: '${POSTGRES_DB_USER}', POSTGRES_PASSWORD: '${POSTGRES_DB_PASSWORD}'
+  env POSTGRES_DB: '${POSTGRES_DB}'
+  env POSTGRES_USER: '${POSTGRES_USER}'
+  env POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
   volume 'postgres_data:/var/lib/postgresql/data'
-  deploy placement: { constraints: ['node.role == manager'] }
-  network :postgres_net
+  network 'postgres_net'
 end
 
-Service :pgweb, image: 'sosedoff/pgweb:0.16.1' do
+Service :pgweb1, image: 'sosedoff/pgweb:0.16.1', ports: 8081 do
   env PGWEB_DATABASE_URL: 'postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable'
-  deploy_label(
-    "traefik.enable": 'true',
-    "traefik.http.routers.pgweb.rule": 'Host(`pgweb.simple-track.ru`)',
-    "traefik.http.services.pgweb.loadbalancer.server.port": 8081,
-    "traefik.http.routers.pgweb.tls": 'true',
-    "traefik.http.routers.pgweb.tls.certresolver": 'le'
-  )
-  network :ingress_routing, :postgres_net
+  network 'postgres_net'
+  network 'ingress-routing', external: true
 end
 
-Service :simpletracker, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest' do
-  env POSTGRES_DB: '${POSTGRES_DB}', POSTGRES_USER: '${POSTGRES_DB_USER}', POSTGRES_PASSWORD: '${POSTGRES_DB_PASSWORD}'
-  deploy_label(
-    "traefik.enable": 'true',
-    "traefik.http.routers.simpletracker.rule": 'Host(`main.simple-track.ru`)',
-    "traefik.http.services.simpletracker.loadbalancer.server.port": 8080,
-    "traefik.http.routers.simpletracker.tls": 'true',
-    "traefik.http.routers.simpletracker.tls.certresolver": 'le'
-  )
-  network :ingress_routing, :postgres_net
+Service :spring1, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
+  env POSTGRES_DB: '${POSTGRES_DB}'
+  env POSTGRES_USER: '${POSTGRES_USER}'
+  env POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+  network 'postgres_net'
+  network 'ingress-routing', external: true
 end
 
-Service :rest_server_cpp, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest' do
-  env DB_URL: 'postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable', PORT: 8080
-  deploy_label(
-    "traefik.enable": 'true',
-    "traefik.http.routers.rest-server-cpp.rule": 'Host(`cpp.simple-track.ru`)',
-    "traefik.http.services.rest-server-cpp.loadbalancer.server.port": 8080,
-    "traefik.http.routers.rest-server-cpp.tls": 'true',
-    "traefik.http.routers.rest-server-cpp.tls.certresolver": 'le'
-  )
-  network :ingress_routing, :postgres_net
+Service :cpp1, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
+  env POSTGRES_DB: '${POSTGRES_DB}'
+  env POSTGRES_USER: '${POSTGRES_USER}'
+  env POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+  network 'postgres_net'
+  network 'ingress-routing', external: true
 end
 
-Service :python_api, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}' do
-  env POSTGRES_DB: '${POSTGRES_DB}', POSTGRES_USER: '${POSTGRES_DB_USER}', POSTGRES_PASSWORD: '${POSTGRES_DB_PASSWORD}', FLASK_APP_PORT: 8080
-  deploy_label(
-    "traefik.enable": 'true',
-    "traefik.http.routers.python-api.rule": 'Host(`flask.simple-track.ru`)',
-    "traefik.http.services.python-api.loadbalancer.server.port": 8080,
-    "traefik.http.routers.python-api.tls": 'true',
-    "traefik.http.routers.python-api.tls.certresolver": 'le'
-  )
-  network :ingress_routing, :postgres_net
+Service :flask1, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
+  env POSTGRES_DB: '${POSTGRES_DB}'
+  env POSTGRES_USER: '${POSTGRES_USER}'
+  env POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
+  network 'postgres_net'
+  network 'ingress-routing', external: true
 end
 
-Volume :postgres_data
+Network :postgres_net, name: 'postgres_net', driver: 'overlay'

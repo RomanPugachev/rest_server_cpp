@@ -1,0 +1,100 @@
+version: '3.8'
+services:
+  postgres:
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      STACK_NAME: main_stack
+      STACK_SERVICE_NAME: postgres
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+    networks:
+      postgres_net:
+    init: true
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+  pgweb1:
+    environment:
+      PGWEB_DATABASE_URL: postgres://${POSTGRES_DB_USER}:${POSTGRES_DB_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
+      STACK_NAME: main_stack
+      STACK_SERVICE_NAME: pgweb1
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.main_stack_pgweb1-0.service=main_stack_pgweb1-0
+        - traefik.http.services.main_stack_pgweb1-0.loadbalancer.server.port=8081
+        - traefik.http.routers.main_stack_pgweb1-0.rule=HostRegexp(`{name:pgweb1\..*}`)
+    networks:
+      postgres_net:
+      ingress-routing:
+      ingress_routing:
+    init: true
+    image: sosedoff/pgweb:0.16.1
+  spring1:
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      STACK_NAME: main_stack
+      STACK_SERVICE_NAME: spring1
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.main_stack_spring1-0.service=main_stack_spring1-0
+        - traefik.http.services.main_stack_spring1-0.loadbalancer.server.port=8080
+        - traefik.http.routers.main_stack_spring1-0.rule=HostRegexp(`{name:spring1\..*}`)
+    networks:
+      postgres_net:
+      ingress-routing:
+      ingress_routing:
+    init: true
+    image: "${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}"
+  cpp1:
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      STACK_NAME: main_stack
+      STACK_SERVICE_NAME: cpp1
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.main_stack_cpp1-0.service=main_stack_cpp1-0
+        - traefik.http.services.main_stack_cpp1-0.loadbalancer.server.port=8080
+        - traefik.http.routers.main_stack_cpp1-0.rule=HostRegexp(`{name:cpp1\..*}`)
+    networks:
+      postgres_net:
+      ingress-routing:
+      ingress_routing:
+    init: true
+    image: "${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}"
+  flask1:
+    environment:
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      STACK_NAME: main_stack
+      STACK_SERVICE_NAME: flask1
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.main_stack_flask1-0.service=main_stack_flask1-0
+        - traefik.http.services.main_stack_flask1-0.loadbalancer.server.port=8080
+        - traefik.http.routers.main_stack_flask1-0.rule=HostRegexp(`{name:flask1\..*}`)
+    networks:
+      postgres_net:
+      ingress-routing:
+      ingress_routing:
+    init: true
+    image: "${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}"
+networks:
+  postgres_net:
+  ingress_routing:
+    external: true
+    name: ingress-routing
+  ingress-routing:
+    external: true
