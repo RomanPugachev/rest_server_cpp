@@ -1,0 +1,49 @@
+version: '3.8'
+services:
+  traefik:
+    environment:
+      STACK_NAME: traefik_stack
+      STACK_SERVICE_NAME: traefik
+    deploy:
+      labels:
+        - traefik.enable=true
+        - traefik.http.routers.traefik_stack_traefik-0.service=traefik_stack_traefik-0
+        - traefik.http.services.traefik_stack_traefik-0.loadbalancer.server.port=8080
+        - traefik.http.routers.traefik_stack_traefik-0.rule=HostRegexp(`{name:traefik\..*}`)
+      mode: global
+    networks:
+      ingress-routing:
+      ingress_routing:
+    init: true
+    image: traefik:v3.1
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - target: "/letsencrypt"
+        type: volume
+        source: traefik_stack_traefik-volume-1
+    command: |
+      -core.defaultRuleSyntax=v2
+      -providers.swarm.endpoint=unix:///var/run/docker.sock
+      -providers.swarm.network=ingress-routing
+      -api.insecure=true
+      -api.dashboard=true
+      -providers.docker.exposedbydefault=false
+      -entrypoints.web.address=:80
+      -entrypoints.https.http.tls=true
+      -entrypoints.https.http.tls.certResolver=le
+      -entrypoints.websecure.address=:443
+      -certificatesresolvers.le.acme.httpchallenge=true
+      -certificatesresolvers.le.acme.httpchallenge.entrypoint=web
+      -certificatesresolvers.le.acme.email=pugachev.ra@yandex.ru
+      -certificatesresolvers.le.acme.storage=/letsencrypt.acme.json
+volumes:
+  traefik_stack_traefik-volume-1:
+    name: letsencrypt
+networks:
+  ingress_routing:
+    external: true
+    name: ingress-routing
+  ingress-routing:

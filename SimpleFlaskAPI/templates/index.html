@@ -38,7 +38,7 @@
             width: 150px;
             height: auto;
             margin-bottom: 20px;
-            animation: rotateIn 3s infinite alternate ease-in-out;
+            animation: scaleAnimation 2s infinite alternate ease-in-out; /* Updated animation */
         }
         .btn {
             padding: 12px 24px;
@@ -60,17 +60,16 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-        @keyframes rotateIn {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        @keyframes scaleAnimation {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <!-- Flask Logo -->
-    <img src="{{ url_for('static', filename='images/flask-logo.png') }}" alt="Flask Logo">
-
+    <!-- dev-ops -->
+    <img src="../static/images/dev-ops.png" alt="dev-ops Logo"> <!-- Corrected image path -->
     <!-- Main Heading -->
     <h1>Welcome to Our Flask App</h1>
 
