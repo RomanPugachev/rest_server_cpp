@@ -213,9 +213,6 @@ Config :otlp_yaml, file_content: <<~YAML
             attributes:
               - key: "service.name"
                 value: "flask"
-              - key: "service.version"
-                value: "1.0.0"
-                action: insert
     exporters:
   #    debug: 
   #      verbosity: detailed

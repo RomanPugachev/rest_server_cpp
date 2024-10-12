@@ -20,5 +20,9 @@ Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:la
   network 'grafana-network', external: true
   env OTEL_EXPORTER_OTLP_ENDPOINT: "http://otlp_collector:4318/",
       OTEL_RESOURCE_ATTRIBUTES: 'deployment.environment=%{stack-name},service.name=%{service-name}',
-      OTEL_TRACES_EXPORTER:'otlp'
+      OTEL_TRACES_EXPORTER:'otlp',
+      OTEL_EXPORTER_OTLP_ENDPOINT: 'https://otel.gis-master.ru',
+      OTEL_RESOURCE_ATTRIBUTES: 'deployment.environment=dev-local,service.name=flask',
+      OTEL_LOG_LEVEL: debug,
+      OTEL_TRACE_EXPORTER: [console,otlp]
 end
