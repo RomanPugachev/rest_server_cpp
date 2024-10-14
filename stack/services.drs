@@ -18,8 +18,12 @@ Service :spring, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:late
 Service :cpp, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080
 Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080 do
   network 'grafana-network', external: true
-  env OTEL_EXPORTER_OTLP_ENDPOINT: "http://otlp_collector:4318/",
+  logging driver: 'loki', options: {
+    'loki-url': 'http://localhost:3100/loki/api/v1/push',
+    'loki-batch-size': 100, 'loki-retries': 2, 'loki-max-backoff': '1000ms', 'loki-timeout': '1s',
+  }
+  env OTEL_EXPORTER_OTLP_ENDPOINT: "http://otlp_collector:4318/v1/traces",
       OTEL_RESOURCE_ATTRIBUTES: 'deployment.environment=%{stack-name},service.name=%{service-name}',
-      OTEL_TRACE_EXPORTER: 'console,otlp'
-      # OTEL_LOG_LEVEL: 'debug'
+      OTEL_TRACE_EXPORTER: 'console,otlp',
+      OTEL_LOG_LEVEL: 'debug'
 end
