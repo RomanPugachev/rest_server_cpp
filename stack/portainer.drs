@@ -1,6 +1,6 @@
 Options name: 'portainer'
 
-Ingress portainer: { host: 'portainer.*', port: '9000' }
+Ingress portainer: { host: 'portainer1.*', port: '9000' }
 
 Service :agent , image: 'portainer/agent:sts' do
   network 'agent_network'

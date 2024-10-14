@@ -207,12 +207,13 @@ Config :otlp_yaml, file_content: <<~YAML
         protocols:
           http:
           grpc:
-    processors:
-        batch:
-        resource:
-            attributes:
-              - key: "service.name"
-                value: "flask"
+#    processors:
+#        batch:
+#        resource:
+#            attributes:
+#              - key: "service.name"
+#                value: "flask"
+#                action: set
     exporters:
   #    debug: 
   #      verbosity: detailed

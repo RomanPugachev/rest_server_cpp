@@ -1,1 +1,3 @@
 /rest_server/.cbuild/
+./simpleTaskTrackerWebApp/src/test/docker
+./simpleTaskTrackerWebApp/src/main/resources/database
