@@ -279,8 +279,8 @@ networks:
     name: ingress-routing
 configs:
   otlp_yaml:
-    name: otlp_yaml-19e3a3e90063763052308f10052690ac
-    file: "./grafana.config.otlp_yaml.19e3a3e90063763052308f10052690ac"
+    name: otlp_yaml-6826ccf5b7deb18678e43544aa52e8f2
+    file: "./grafana.config.otlp_yaml.6826ccf5b7deb18678e43544aa52e8f2"
   tempo_yaml:
     name: tempo_yaml-9336cd7db1f37ba3c7797366f243d4ab
     file: "./grafana.config.tempo_yaml.9336cd7db1f37ba3c7797366f243d4ab"

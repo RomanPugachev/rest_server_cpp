@@ -79,7 +79,7 @@ Service :grafana, image: 'grafana/grafana:10.4.2', ports: 3000 do
           - uid: adsd24d1c4av5a
             type: telegram
             settings:
-              bottoken: 5109412188:AAF5RtYj1p7vbYfBDYvDhl2B-cvc42Ex988
+              bottoken: ${TG_BOT_TOKEN}
               chatid: "-651562260"
               disable_notification: false
               disable_web_page_preview: false
