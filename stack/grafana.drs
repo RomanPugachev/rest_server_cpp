@@ -34,39 +34,39 @@ Service :tempo, image: 'grafana/tempo:latest', ports: 4318 do
   config :tempo_yaml, target: '/etc/tempo.yaml'
 end
 
-Service :fluent_bit, image: 'fluent/fluent-bit:latest' do
-  volume '/var/run/docker.sock:/var/run/docker.sock'  # Required for Docker API access
-  config target: '/fluent-bit/etc/parsers2.conf', file_content: <<~CONF
-    [PARSER]
-        Name         docker
-        Format       json
-        Time_Key     time
-        Time_Format  %Y-%m-%dT%H:%M:%S.%L
-  CONF
-  config target: '/fluent-bit/etc/fluent-bit.conf', file_content: <<~CONF
-    [SERVICE]
-      flush        10
-      daemon       Off
-      parsers_file parsers.conf
-      parsers_file parsers2.conf
-      plugins_file plugins.conf
-      log_level    info
-
-    [INPUT]
-        Name             docker
-        Tag              docker.*
-        Path             /var/run/docker.sock
-        Parser           docker
-
-    [OUTPUT]
-        Name             loki
-        Match            *
-        Host             loki
-        Port             3100
-        Labels           job=docker_events
-        Line_Format      json
-  CONF
-end
+# Service :fluent_bit, image: 'fluent/fluent-bit:latest' do
+#   volume '/var/run/docker.sock:/var/run/docker.sock'  # Required for Docker API access
+#   config target: '/fluent-bit/etc/parsers2.conf', file_content: <<~CONF
+#     [PARSER]
+#         Name         docker
+#         Format       json
+#         Time_Key     time
+#         Time_Format  %Y-%m-%dT%H:%M:%S.%L
+#   CONF
+#   config target: '/fluent-bit/etc/fluent-bit.conf', file_content: <<~CONF
+#     [SERVICE]
+#       flush        10
+#       daemon       Off
+#       parsers_file parsers.conf
+#       parsers_file parsers2.conf
+#       plugins_file plugins.conf
+#       log_level    info
+#
+#     [INPUT]
+#         Name             docker
+#         Tag              docker.*
+#         Path             /var/run/docker.sock
+#         Parser           docker
+#
+#     [OUTPUT]
+#         Name             loki
+#         Match            *
+#         Host             loki
+#         Port             3100
+#         Labels           job=docker_events
+#         Line_Format      json
+#   CONF
+# end
 
 Service :prometheus, image: 'prom/prometheus:latest' do
   command %w[--web.enable-remote-write-receiver --enable-feature=exemplar-storage --config.file=/etc/prometheus.yaml]
