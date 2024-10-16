@@ -21,7 +21,7 @@ jobs:
       - uses: docker/setup-buildx-action@v2
       - run: |
           cd docker
-          build-labels -n -c docker-compose.yml github set_version to_dockerfiles to_compose | tee bake.yml
+          build-labels -n -c docker-compose.yml gitlab set_version to_dockerfiles to_compose | tee bake.yml
           export $(grep -v '^#' .env | xargs)
           export REPOSITORY_OWNER=${{ github.repository_owner}}
           export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}

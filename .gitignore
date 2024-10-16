@@ -1,7 +1,7 @@
-/rest_server/.cbuild/
+./rest_server/.cbuild/
 ./simpleTaskTrackerWebApp/src/test/docker
 ./simpleTaskTrackerWebApp/src/main/resources/database
 ./stack/docker-compose*
 ./check-service
-/docker/check-service/
-/stack/check-service.drs
+./docker/check-service/
+./stack/check-service.drs
