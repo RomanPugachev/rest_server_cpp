@@ -88,6 +88,7 @@ Service :prometheus, image: 'prom/prometheus:latest' do
 end
 
 Service :grafana, image: 'grafana/grafana:10.4.2', ports: 3000 do
+  env GF_LOG_LEVEL: 'trace'
   env GF_ADMIN_USER: 'admin'
   env GF_ADMIN_PASSWORD: 'password'
   env GF_AUTH_ANONYMOUS_ENABLED: false
