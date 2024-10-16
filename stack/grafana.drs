@@ -104,34 +104,34 @@ Service :grafana, image: 'grafana/grafana:latest', ports: 3000 do
   config target: '/var/lib/grafana/dashboards/node_exporter.json', file: './dashboards/node_exporter.json' # https://grafana.com/grafana/dashboards/1860-node-exporter-full/
   config target: '/var/lib/grafana/dashboards/swarm_stack.json', file: './dashboards/swarm_stack.json' # https://grafana.com/grafana/dashboards/7007-swarm-stack-monitoring/
 
-  config target: '/etc/grafana/provisioning/alerting/alert_rules.yaml', file: './alerting/alert_rules.yaml'
-  config target: '/etc/grafana/provisioning/alerting/policies.yaml', file: './alerting/policies.yaml'
+  # config target: '/etc/grafana/provisioning/alerting/alert_rules.yaml', file: './alerting/alert_rules.yaml'
+  # config target: '/etc/grafana/provisioning/alerting/policies.yaml', file: './alerting/policies.yaml'
 
-  config target: '/etc/grafana/provisioning/alerting/contact_points.yaml', file_content: <<~YAML
-    apiVersion: 1
-    contactPoints:
-      - orgId: 1
-        name: TG logs
-        receivers:
-          - uid: adsd24d1c4av5a
-            type: telegram
-            settings:
-              bottoken: #{ENV['TG_BOT_TOKEN']}
-              chatid: #{ENV['CHAT_ID']}
-              disable_notification: false
-              disable_web_page_preview: false
-              message: |
-                <strong>Grafana (#{ENV['MAIN_DOMAIN']}):</strong> {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
-                {{- range .Alerts.Firing }}
-                - [F] {{ index .Labels "alertname" }}: {{ .Annotations.summary }} {{ .Annotations.description }}
-                {{- end }}
-                {{- range .Alerts.Resolved }}
-                - [R] {{ index .Labels "alertname" }}: {{ .Annotations.summary }} {{ .Annotations.description }}
-                {{ end }}
-              parse_mode: HTML
-              protect_content: false
-            disableResolveMessage: false
-  YAML
+  # config target: '/etc/grafana/provisioning/alerting/contact_points.yaml', file_content: <<~YAML
+  #   apiVersion: 1
+  #   contactPoints:
+  #     - orgId: 1
+  #       name: TG logs
+  #       receivers:
+  #         - uid: adsd24d1c4av5a
+  #           type: telegram
+  #           settings:
+  #             bottoken: #{ENV['TG_BOT_TOKEN']}
+  #             chatid: #{ENV['CHAT_ID']}
+  #             disable_notification: false
+  #             disable_web_page_preview: false
+  #             message: |
+  #               <strong>Grafana (#{ENV['MAIN_DOMAIN']}):</strong> {{ len .Alerts.Firing }} firing alert(s), {{ len .Alerts.Resolved }} resolved alert(s)
+  #               {{- range .Alerts.Firing }}
+  #               - [F] {{ index .Labels "alertname" }}: {{ .Annotations.summary }} {{ .Annotations.description }}
+  #               {{- end }}
+  #               {{- range .Alerts.Resolved }}
+  #               - [R] {{ index .Labels "alertname" }}: {{ .Annotations.summary }} {{ .Annotations.description }}
+  #               {{ end }}
+  #             parse_mode: HTML
+  #             protect_content: false
+  #           disableResolveMessage: false
+  # YAML
 end
 
 Service :loki, image: 'grafana/loki:latest', ports: 3100 do
