@@ -38,9 +38,10 @@ Service :fluent_bit, image: 'fluent/fluent-bit:latest' do
   volume '/var/run/docker.sock:/var/run/docker.sock'  # Required for Docker API access
   config target: '/fluent-bit/etc/parsers2.conf', file_content: <<~CONF
     [PARSER]
-        Name         docker_events_json
+        Name         docker
         Format       json
         Time_Key     time
+        Time_Format  %Y-%m-%dT%H:%M:%S.%L
   CONF
   config target: '/fluent-bit/etc/fluent-bit.conf', file_content: <<~CONF
     [SERVICE]
@@ -52,8 +53,10 @@ Service :fluent_bit, image: 'fluent/fluent-bit:latest' do
       log_level    info
 
     [INPUT]
-        Name   docker_events
-        Parser docker_events_json
+        Name             docker
+        Tag              docker.*
+        Path             /var/run/docker.sock
+        Parser           docker
 
     [OUTPUT]
         Name             loki
