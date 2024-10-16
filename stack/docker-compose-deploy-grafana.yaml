@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   tempo:
     environment:
@@ -315,8 +314,8 @@ configs:
     name: grafana_grafana-config-8-d41d8cd98f00b204e9800998ecf8427e
     file: "./alerting/policies.yaml"
   grafana_grafana-config-9:
-    name: grafana_grafana-config-9-f5af5dd5a4fceca11b07187eb60d7984
-    file: "./grafana.config.grafana_grafana-config-9.f5af5dd5a4fceca11b07187eb60d7984"
+    name: grafana_grafana-config-9-0cca98b8778e13d23d4fb92650e6d55e
+    file: "./grafana.config.grafana_grafana-config-9.0cca98b8778e13d23d4fb92650e6d55e"
   grafana_loki-config-0:
     name: grafana_loki-config-0-d382a870c3486488b45958743d0b2358
     file: "./grafana.config.grafana_loki-config-0.d382a870c3486488b45958743d0b2358"

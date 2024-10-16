@@ -34,6 +34,37 @@ Service :tempo, image: 'grafana/tempo:latest', ports: 4318 do
   config :tempo_yaml, target: '/etc/tempo.yaml'
 end
 
+Service :fluent_bit, image: 'fluent/fluent-bit:latest' do
+  volume '/var/run/docker.sock:/var/run/docker.sock'  # Required for Docker API access
+  config target: '/fluent-bit/etc/parsers2.conf', file_content: <<~CONF
+    [PARSER]
+        Name         docker_events_json
+        Format       json
+        Time_Key     time
+  CONF
+  config target: '/fluent-bit/etc/fluent-bit.conf', file_content: <<~CONF
+    [SERVICE]
+      flush        10
+      daemon       Off
+      parsers_file parsers.conf
+      parsers_file parsers2.conf
+      plugins_file plugins.conf
+      log_level    info
+
+    [INPUT]
+        Name   docker_events
+        Parser docker_events_json
+
+    [OUTPUT]
+        Name             loki
+        Match            *
+        Host             loki
+        Port             3100
+        Labels           job=docker_events
+        Line_Format      json
+  CONF
+end
+
 Service :prometheus, image: 'prom/prometheus:latest' do
   command %w[--web.enable-remote-write-receiver --enable-feature=exemplar-storage --config.file=/etc/prometheus.yaml]
   network 'grafana-network', external: true
@@ -80,7 +111,7 @@ Service :grafana, image: 'grafana/grafana:10.4.2', ports: 3000 do
             type: telegram
             settings:
               bottoken: #{ENV['TG_BOT_TOKEN']}
-              chatid: "-651562260"
+              chatid: #{ENV['CHAT_ID']}
               disable_notification: false
               disable_web_page_preview: false
               message: |

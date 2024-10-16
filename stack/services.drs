@@ -7,6 +7,9 @@ Ingress pgweb:  [ { host: 'pgweb1.*' }, { host: 'pgweb2.*' } ],
 
 Deploy [:postgres], { 'placement.constraints': ['node.role == manager'] }
 
+# Deploy [:flask], { update_config: ['parallelism=2', 'delay=10s', 'failure-action=rollback', 'monitor=15s', 'max-failure-ratio=0.0'],
+#                    restart_policy: ['condition:on-failure', 'delay=5s', 'max_attempts=1'] }
+
 Service :postgres, image: 'postgres:17' do
   env POSTGRES_DB: '${POSTGRES_DB}', POSTGRES_USER: '${POSTGRES_USER}', POSTGRES_PASSWORD: '${POSTGRES_PASSWORD}'
   volume target: '/var/lib/postgresql/data', name: 'postgres_data'
@@ -27,3 +30,18 @@ Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:la
       OTEL_TRACE_EXPORTER: 'console,otlp',
       OTEL_LOG_LEVEL: 'debug'
 end
+
+
+# update_config:
+#   failure_action: rollback
+# parallelism: 1
+# delay: 1s
+# order: start-first
+# rollback_config:
+#   parallelism: 0
+# order: stop-first
+# restart_policy:
+#   condition: any
+# delay: 10s
+# max_attempts: 3
+# window: 120s

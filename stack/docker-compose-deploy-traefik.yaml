@@ -45,3 +45,23 @@ volumes:
 networks:
   ingress-routing:
     external: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# MAIN STATE OF SERVICE: SERVICE_NAME // NAME // STATE (ERROR or RUN ON VERSION, LATEST UPDATE TIME, UPTIME)
+
+# EVENTS: EVENT_NAME (SUCCESS_UPDATE//UPDATE_FAILURE//ROLLBACK) , EVENT_TIME
