@@ -87,7 +87,7 @@ Service :prometheus, image: 'prom/prometheus:latest' do
   YAML
 end
 
-Service :grafana, image: 'grafana/grafana:10.4.2', ports: 3000 do
+Service :grafana, image: 'grafana/grafana:latest', ports: 3000 do
   env GF_LOG_LEVEL: 'trace'
   env GF_ADMIN_USER: 'admin'
   env GF_ADMIN_PASSWORD: 'password'
