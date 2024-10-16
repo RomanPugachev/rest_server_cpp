@@ -15,11 +15,11 @@ Service :postgres, image: 'postgres:17' do
   volume target: '/var/lib/postgresql/data', name: 'postgres_data'
 end
 
-DB_URL = 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable'
-Service :pgweb, image: 'sosedoff/pgweb:0.16.1', env: { PGWEB_DATABASE_URL: DB_URL }, ports: 8081
-Service :spring, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080
-Service :cpp, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080
-Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', env: { DB_URL: DB_URL }, ports: 8080 do
+DATABASE_URL = 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable'
+Service :pgweb, image: 'sosedoff/pgweb:0.16.1', env: { DATABASE_URL: DATABASE_URL }, ports: 8081
+Service :spring, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest', env: { DATABASE_URL: DATABASE_URL }, ports: 8080
+Service :cpp, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest', env: { DATABASE_URL: DATABASE_URL }, ports: 8080
+Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', env: { DATABASE_URL: DATABASE_URL }, ports: 8080 do
   network 'grafana-network', external: true
   logging driver: 'loki', options: {
     'loki-url': 'http://localhost:3100/loki/api/v1/push',

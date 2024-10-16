@@ -2,6 +2,3 @@
 ./simpleTaskTrackerWebApp/src/test/docker
 ./simpleTaskTrackerWebApp/src/main/resources/database
 ./stack/docker-compose*
-./check-service
-./docker/check-service/
-./stack/check-service.drs
