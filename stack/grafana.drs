@@ -50,7 +50,7 @@ Service :fluent_bit, image: 'fluent/fluent-bit:latest' do
       parsers_file parsers.conf
       parsers_file parsers2.conf
       plugins_file plugins.conf
-      log_level    info
+      log_level    debug
 
     [INPUT]
         Name   docker_events
