@@ -117,7 +117,7 @@ Service :grafana, image: 'grafana/grafana:latest', ports: 3000 do
             type: telegram
             settings:
               bottoken: #{ENV['TG_BOT_TOKEN']}
-              chatid: #{ENV['CHAT_ID']}
+              chatid: "-651562260"
               disable_notification: false
               disable_web_page_preview: false
               message: |
