@@ -1,6 +1,6 @@
 on:
   workflow_dispatch:
-  push: { branches: [main, master, release] }
+  push: { branches: [main, master, release, develop ] }
 
 jobs:
 #  build-push:

@@ -1,8 +1,7 @@
 import requests
 
 def get_docker_metadata():
-    try:
-        # Query Docker's API to get the container's information
+    try: # Query Docker's API to get the container's information
         container_info = requests.get("http://localhost:2375/containers/self/json").json()
         container_id = container_info['Id']
 
