@@ -13,7 +13,7 @@ function gup(name) {
 
 // get selected item count from url parameter
 var count = Number(gup("count")) || 1000;
-
+//
 async function loadTimelineData() {
     try {
         const response = await fetch('/getBackendTimeLinesGlobalInfo'); // Fetch data from Flask endpoint
