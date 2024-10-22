@@ -11,7 +11,7 @@ Service :traefik, image: 'traefik:v3.1', ports: [80, 443] do
   volume target: '/letsencrypt', name: 'letsencrypt'
   volume target: '/certificates', name: 'letsencrypt'
 
-  network 'grafana-network', external: true
+  network 'grafana_network', external: true
   command <<~CC
       --core.defaultRuleSyntax=v2
       --providers.swarm.endpoint=unix:///var/run/docker.sock

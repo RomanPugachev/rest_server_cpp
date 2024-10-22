@@ -57,8 +57,8 @@ jobs:
           if ! docker network ls | grep -q "ingress-routing"; then
             docker network create --driver overlay ingress-routing
           fi
-          if ! docker network ls | grep -q "grafana-network"; then
-            docker network create --driver overlay grafana-network
+          if ! docker network ls | grep -q "grafana_network"; then
+            docker network create --driver overlay grafana_network
           fi
           if ! docker plugin ls | grep -q "loki:latest"; then
               echo "Installing Grafana Loki Docker driver plugin..."
