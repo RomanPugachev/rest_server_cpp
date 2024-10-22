@@ -7,7 +7,7 @@ app = Flask(__name__)
 CORS(app)
 
 # Base application parameters:
-@app.route('/')
+@app.route('/viewTimelines')
 def homepage():
     service_name = request.args.get('service')
     if service_name:
@@ -17,7 +17,7 @@ def homepage():
         services_info = LokiInteraction.get_service_info(None)
         return jsonify({"status" : "OK", "services_info" : [service.to_dict() for service in services_info]})
 
-@app.route('/viewTimelines')
+@app.route('/')
 def viewTimelines():
     return render_template('timeline_main_page.html')
 
