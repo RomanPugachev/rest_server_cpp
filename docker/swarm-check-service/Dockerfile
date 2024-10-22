@@ -7,10 +7,10 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY ./check-service/requirements.txt .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ./check-service/ .
 
-ENTRYPOINT ["python", "SimpleFlaskAPI.py"]
+ENTRYPOINT ["python", "MainClientChecker.py"]

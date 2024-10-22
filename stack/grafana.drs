@@ -6,6 +6,7 @@ Labels 'stack.product': 'tempo'
 Options name: 'grafana' , traefik: true, traefik_tls: !!ENV['TLS_DOMAIN'] , tls_domain: ENV['TLS_DOMAIN']
 
 Ingress grafana: { host: 'tempo.*' },
+        loki: {host: 'loki.*' },
         otlp_collector: [{ host: 'otel.*' },
                          { host: '*', path: '/otel', path_sub: ['^/otel(.*)', '$1'] },
                          { host: 'otel.*', path: '/grpc', path_sub: ['^/grpc(.*)', '$1'], port: 4317 },
@@ -135,13 +136,6 @@ end
 Service :loki, image: 'grafana/loki:latest', ports: 3100 do
   command <<~CC
     -config.file=/etc/loki/local-config.yaml
-    -boltdb.shipper.compactor.ring.instance-addr=127.0.0.1
-    -distributor.ring.instance-addr=127.0.0.1
-    -frontend.instance-addr=127.0.0.1
-    -index-gateway.ring.instance-addr=127.0.0.1
-    -ingester.lifecycler.addr=127.0.0.1
-    -query-scheduler.ring.instance-addr=127.0.0.1
-    -ruler.ring.instance-addr=127.0.0.1
   CC
   network 'grafana-network', external: true
   network :default
@@ -153,7 +147,6 @@ Service :loki, image: 'grafana/loki:latest', ports: 3100 do
       http_listen_port: 3100
     common:
       ring:
-        instance_addr: 127.0.0.1
         kvstore:
           store: inmemory
       replication_factor: 1

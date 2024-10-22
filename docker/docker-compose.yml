@@ -1,9 +1,9 @@
 services:
   rest-cxx:
     image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}
-    build:
-      context: ../rest_server
-      dockerfile: ../docker/cxx/Dockerfile
+#    build:
+#      context: ../rest_server
+#      dockerfile: ../docker/cxx/Dockerfile
 #    environment:
 #      DATABASE_URL: postgres://node:node@swarm.next:15001/aip_data?sslmode=disable
 #      PORT: 8080
@@ -18,6 +18,11 @@ services:
 
   python-api:
     image: ${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}
+#    build:
+#      context: ../SimpleFlaskAPI
+#      dockerfile: ../docker/python/Dockerfile
+  swarm-check-service:
+    image: ${REGISTRY_HOST}/swarm-check-service/${CI_COMMIT_BRANCH}
     build:
-      context: ../SimpleFlaskAPI
-      dockerfile: ../docker/python/Dockerfile
+      context: ../swarm-check-service/src/main
+      dockerfile: ../../../docker/swarm-check-service/Dockerfile
