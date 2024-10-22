@@ -4,7 +4,7 @@ Ingress pgweb:  [ { host: 'pgweb1.*' }, { host: 'pgweb2.*' } ],
         cpp:    { host: 'cpp1.*'},
         flask:  { host: 'flask1.*' },
         spring: { host: 'spring1.*' },
-        swarmCheckService: {host: 'swarm-check1.*'}
+        swarm_check_service: {host: 'swarm-check1.*'}
 
 
 Deploy [:postgres], { 'placement.constraints': ['node.role == manager'] }
@@ -17,7 +17,7 @@ Service :postgres, image: 'postgres:17' do
   volume target: '/var/lib/postgresql/data', name: 'postgres_data'
 end
 
-Service :swarmCheckService, image: '${REGISTRY_HOST}/swarm-check-service/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
+Service :swarm_check_service, image: '${REGISTRY_HOST}/swarm-check-service/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
   network 'grafana-network', external: true
   env BASE_LOKI_URL: 'http://loki:3100/loki/api/v1', LIMIT: '0'
 end
