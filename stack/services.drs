@@ -19,7 +19,7 @@ end
 
 Service :swarmCheckService, image: '${REGISTRY_HOST}/swarm-check-service/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
   network 'grafana-network', external: true
-  env BASE_LOKI_URL: 'http://loki:3100/loki/api/v1', LIMIT: '0'
+  env BASE_LOKI_URL: 'http://localhost:3100/loki/api/v1', LIMIT: '0'
 end
 
 DATABASE_URL = 'postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable'
