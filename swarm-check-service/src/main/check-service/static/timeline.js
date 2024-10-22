@@ -16,7 +16,7 @@ var count = Number(gup("count")) || 1000;
 
 async function loadTimelineData() {
     try {
-        const response = await fetch('http://localhost:5000/getBackendTimeLinesGlobalInfo'); // Fetch data from Flask endpoint
+        const response = await fetch('https://swarm-check1.simple-track.ru/getBackendTimeLinesGlobalInfo'); // Fetch data from Flask endpoint
         const data = await response.json(); // Parse JSON data
         const groups = new vis.DataSet(data.groups); // Use groups from the backend response
         const items = new vis.DataSet(data.items.map(item => {
