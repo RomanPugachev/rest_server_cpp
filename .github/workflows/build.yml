@@ -86,15 +86,11 @@ jobs:
         docker context create remote-server --docker "host=ssh://$SERVER_USERNAME@$SERVER_HOST"
         docker context use remote-server 
         cd stack
-#        dry-stack -s services.drs to_compose
         dry-stack -s services.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
 
-#        dry-stack -s traefik.drs to_compose
         dry-stack -s traefik.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
         
-#        dry-stack -s portainer.drs to_compose
         dry-stack -s portainer.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
         
-#        dry-stack -s grafana.drs to_compose
         dry-stack -s grafana.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
         
