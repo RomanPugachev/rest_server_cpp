@@ -3,94 +3,94 @@ on:
   push: { branches: [main, master, release, develop ] }
 
 jobs:
-#  build-push:
-#    runs-on: ubuntu-24.04
-#    permissions: { contents: read, packages: write }
-#    steps:
-#      - uses: actions/checkout@v3
-#      - uses: ruby/setup-ruby@v1
-#        with:
-#          ruby-version: '3.3' # Not needed with a `.ruby-version` or `.tool-versions`
-#          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-#      - run: gem install build-labels:0.0.22
-#      - uses: docker/login-action@v2
-#        with:
-#          registry: ghcr.io
-#          username: ${{ github.actor }}
-#          password: ${{ secrets.GITHUB_TOKEN }}
-#      - uses: docker/setup-buildx-action@v2
-#      - run: |
-#          cd docker
-#          build-labels -n -c docker-compose.yml gitlab set_version to_dockerfiles to_compose | tee bake.yml
-#          export $(grep -v '^#' .env | xargs)
-#          export REPOSITORY_OWNER=${{ github.repository_owner}}
-#          export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
-#          export CI_COMMIT_BRANCH=${{ github.ref_name }}
-#          docker buildx bake -f bake.yml --push
-
-  deploy-in-swarm:
-#    needs: build-push
+  build-push:
     runs-on: ubuntu-24.04
+    permissions: { contents: read, packages: write }
     steps:
-    - uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: '3.3' # Not needed with a `.ruby-version` or `.tool-versions`
-        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
-    - run: gem install dry-stack:0.1.21
-    - uses: appleboy/ssh-action@master      # Installing docker environment with docker swarm; creating project directory on server
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
-        script: |
-          if ! [ -x "$(command -v docker)" ]; then
-            echo "Docker not found, installing..."
-            apt-get update
-            apt-get install -y docker.io docker-compose-plugin swapspace
-          fi
-          if ! docker info | grep -q "Swarm: active"; then
-            docker swarm init
-          else
-            echo "This node is already part of a swarm, skipping 'docker swarm init'."
-          fi           
-          if ! docker network ls | grep -q "ingress-routing"; then
-            docker network create --driver overlay ingress-routing
-          fi
-          if ! docker network ls | grep -q "grafana-network"; then
-            docker network create --driver overlay grafana-network
-          fi
-          if ! docker plugin ls | grep -q "loki:latest"; then
-              echo "Installing Grafana Loki Docker driver plugin..."
-              docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
-          else
-              echo "Grafana Loki Docker driver plugin is already installed."
-          fi
-    - uses: actions/checkout@v3
-    - uses: thaind0/envfile@v1.1
-      with:
-        secrets: ${{ toJSON(secrets) }}
-        file: # No file: (or: .secrets.env )
-    - run: |
-        mkdir -p ~/.ssh
-        echo "$SERVER_SSH_KEY" > ~/.ssh/id_rsa
-        echo "$SERVER_SSH_KEY_PUB" > ~/.ssh/id_rsa.pub
-        chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
-        export $(grep -v '^#' .env | xargs)
-        export REPOSITORY_OWNER=${{ github.repository_owner}}
-        export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
-        export CI_COMMIT_BRANCH=${{ github.ref_name }}
-        
-        echo "$SERVER_AUTHORIZE_REGISRY_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-        docker context create remote-server --docker "host=ssh://$SERVER_USERNAME@$SERVER_HOST"
-        docker context use remote-server 
-        cd stack
-        dry-stack -s services.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
+      - uses: actions/checkout@v3
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3' # Not needed with a `.ruby-version` or `.tool-versions`
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      - run: gem install build-labels:0.0.22
+      - uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v2
+      - run: |
+          cd docker
+          build-labels -n -c docker-compose.yml gitlab set_version to_dockerfiles to_compose | tee bake.yml
+          export $(grep -v '^#' .env | xargs)
+          export REPOSITORY_OWNER=${{ github.repository_owner}}
+          export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
+          export CI_COMMIT_BRANCH=${{ github.ref_name }}
+          docker buildx bake -f bake.yml --push
 
-        dry-stack -s traefik.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
-        
-        dry-stack -s portainer.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
-        
-        dry-stack -s grafana.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
+#  deploy-in-swarm:
+#    needs: build-push
+#    runs-on: ubuntu-24.04
+#    steps:
+#    - uses: ruby/setup-ruby@v1
+#      with:
+#        ruby-version: '3.3' # Not needed with a `.ruby-version` or `.tool-versions`
+#        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+#    - run: gem install dry-stack:0.1.21
+#    - uses: appleboy/ssh-action@master      # Installing docker environment with docker swarm; creating project directory on server
+#      with:
+#        host: ${{ secrets.SERVER_HOST }}
+#        username: ${{ secrets.SERVER_USERNAME }}
+#        key: ${{ secrets.SERVER_SSH_KEY }}
+#        passphrase: ${{ secrets.SERVER_SSH_KEY_PASSPHRASE }}
+#        script: |
+#          if ! [ -x "$(command -v docker)" ]; then
+#            echo "Docker not found, installing..."
+#            apt-get update
+#            apt-get install -y docker.io docker-compose-plugin swapspace
+#          fi
+#          if ! docker info | grep -q "Swarm: active"; then
+#            docker swarm init
+#          else
+#            echo "This node is already part of a swarm, skipping 'docker swarm init'."
+#          fi
+#          if ! docker network ls | grep -q "ingress-routing"; then
+#            docker network create --driver overlay ingress-routing
+#          fi
+#          if ! docker network ls | grep -q "grafana-network"; then
+#            docker network create --driver overlay grafana-network
+#          fi
+#          if ! docker plugin ls | grep -q "loki:latest"; then
+#              echo "Installing Grafana Loki Docker driver plugin..."
+#              docker plugin install grafana/loki-docker-driver:latest --alias loki --grant-all-permissions
+#          else
+#              echo "Grafana Loki Docker driver plugin is already installed."
+#          fi
+#    - uses: actions/checkout@v3
+#    - uses: thaind0/envfile@v1.1
+#      with:
+#        secrets: ${{ toJSON(secrets) }}
+#        file: # No file: (or: .secrets.env )
+#    - run: |
+#        mkdir -p ~/.ssh
+#        echo "$SERVER_SSH_KEY" > ~/.ssh/id_rsa
+#        echo "$SERVER_SSH_KEY_PUB" > ~/.ssh/id_rsa.pub
+#        chmod 600 ~/.ssh/id_rsa
+#        ssh-keyscan -H $SERVER_HOST >> ~/.ssh/known_hosts
+#        export $(grep -v '^#' .env | xargs)
+#        export REPOSITORY_OWNER=${{ github.repository_owner}}
+#        export REGISTRY_HOST=ghcr.io/${REPOSITORY_OWNER,,}/${{ github.event.repository.name }}
+#        export CI_COMMIT_BRANCH=${{ github.ref_name }}
+#
+#        echo "$SERVER_AUTHORIZE_REGISRY_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+#        docker context create remote-server --docker "host=ssh://$SERVER_USERNAME@$SERVER_HOST"
+#        docker context use remote-server
+#        cd stack
+#        dry-stack -s services.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
+#
+#        dry-stack -s traefik.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
+#
+#        dry-stack -s portainer.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
+#
+#        dry-stack -s grafana.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
         
