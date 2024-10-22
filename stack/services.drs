@@ -18,7 +18,7 @@ Service :postgres, image: 'postgres:17' do
 end
 
 Service :swarmCheckService, image: '${REGISTRY_HOST}/swarm-check-service/${CI_COMMIT_BRANCH}:latest', ports: 8080 do
-  network 'grafana_network', external: true
+  network 'grafana-network', external: true
   env BASE_LOKI_URL: 'http://localhost:3100/loki/api/v1', LIMIT: '0'
 end
 
@@ -27,7 +27,7 @@ Service :pgweb, image: 'sosedoff/pgweb:0.16.1', env: { DATABASE_URL: DATABASE_UR
 Service :spring, image: '${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}:latest', env: { DATABASE_URL: DATABASE_URL }, ports: 8080
 Service :cpp, image: '${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}:latest', env: { DATABASE_URL: DATABASE_URL }, ports: 8080
 Service :flask, image: '${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}:latest', env: { DATABASE_URL: DATABASE_URL }, ports: 8080 do
-  network 'grafana_network', external: true
+  network 'grafana-network', external: true
   logging driver: 'loki', options: {
     'loki-url': 'http://localhost:3100/loki/api/v1/push',
     'loki-batch-size': 100, 'loki-retries': 2, 'loki-max-backoff': '1000ms', 'loki-timeout': '1s',

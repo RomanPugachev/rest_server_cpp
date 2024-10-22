@@ -69,7 +69,7 @@ end
 
 Service :prometheus, image: 'prom/prometheus:latest' do
   command %w[--web.enable-remote-write-receiver --enable-feature=exemplar-storage --config.file=/etc/prometheus.yaml]
-  network 'grafana_network', external: true
+  network 'grafana-network', external: true
   network :default
   volume target: '/prometheus', name: 'prometheus_data'
   config target: '/etc/prometheus.yaml', file_content: <<~YAML
@@ -93,7 +93,7 @@ Service :grafana, image: 'grafana/grafana:latest', ports: 3000 do
   env GF_AUTH_ANONYMOUS_ENABLED: false
   volume target: '/var/lib/grafana', name: 'grafana_data'
 
-  network 'grafana_network', external: true
+  network 'grafana-network', external: true
   network :default
   config :grafana_datasources_yaml, target: '/etc/grafana/provisioning/datasources/datasources.yaml'
   config :grafana_dashboards_yaml, target: '/etc/grafana/provisioning/dashboards/main.yaml'
@@ -137,7 +137,7 @@ Service :loki, image: 'grafana/loki:latest', ports: 3100 do
   command <<~CC
     -config.file=/etc/loki/local-config.yaml
   CC
-  network name: 'grafana_network', external: true
+  network name: 'grafana-network', external: true
   network :default
   volume target: '/data', name: 'loki_data'
   user '0:0'
@@ -177,7 +177,7 @@ Service :promtail, image: 'grafana/promtail:latest' do
   volume target: '/etc/promtail'
   command "-config.file=/etc/promtail/promtail-config.yml" #  --dry-run --inspect
 
-  network 'grafana_network', external: true
+  network 'grafana-network', external: true
   network :default
   # deploy resources: { 'limits.memory': '500 M' }
 
@@ -209,7 +209,7 @@ Service :cadvisor, image: 'fefx/gcr.io.cadvisor.cadvisor:v0.49.1', ports: 8080 d
   volume '/sys:/sys:ro'
   volume '/var/lib/docker/:/var/lib/docker:ro'
   volume '/dev/disk/:/dev/disk:ro'
-  network 'grafana_network', external: true
+  network 'grafana-network', external: true
   network :default
 end
 
@@ -224,7 +224,7 @@ Service :docker_state_exporter, image: 'karugaru/docker_state_exporter', ports: 
 end
 
 Service :otlp_collector, image: 'otel/opentelemetry-collector-contrib:0.102.0', ports: 4318 do
-  network 'grafana_network', external: true
+  network 'grafana-network', external: true
   network :default
   config :otlp_yaml, target: '/etc/otelcol-contrib/config.yaml'
 end
@@ -398,4 +398,4 @@ Config :grafana_dashboards_yaml, file_content: <<~YAML
         foldersFromFilesStructure: true
 YAML
 
-# Network :grafana_network, external: true , 'grafana_network'
+# Network :grafana_network, external: true , 'grafana-network'
