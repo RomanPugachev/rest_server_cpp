@@ -1,9 +1,9 @@
 services:
   rest-cxx:
     image: ${REGISTRY_HOST}/rest-cxx/${CI_COMMIT_BRANCH}
-    build:
-      context: ../rest_server
-      dockerfile: ../docker/cxx/Dockerfile
+#    build:
+#      context: ../rest_server
+#      dockerfile: ../docker/cxx/Dockerfile
 #    environment:
 #      DATABASE_URL: postgres://node:node@swarm.next:15001/aip_data?sslmode=disable
 #      PORT: 8080
@@ -12,9 +12,9 @@ services:
 
   simpletracker:
     image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}
-    build:
-      context: ../simpleTaskTrackerWebApp
-      dockerfile: ../docker/java/Dockerfile
+#    build:
+#      context: ../simpleTaskTrackerWebApp
+#      dockerfile: ../docker/java/Dockerfile
 
   python-api:
     image: ${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}

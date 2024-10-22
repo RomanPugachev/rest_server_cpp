@@ -11,7 +11,7 @@ RESULT_LIST_FOR_SERVICE_EVENTS = list()
 QUERY_FOR_SERVICE_EVENTS = '{job="docker_events"} | json | Type = "service" and Action =~ "create|remove|update"'
 
 
-BASE_LOKI_URL = int(os.getenv("BASE_LOKI_URL", "http://loki/loki/api/v1"))
+BASE_LOKI_URL = os.getenv("BASE_LOKI_URL", "http://loki/loki/api/v1")
 
 limit = int(os.environ.get('LIMIT', 0))
 
