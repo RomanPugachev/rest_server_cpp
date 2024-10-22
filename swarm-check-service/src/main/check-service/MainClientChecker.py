@@ -26,7 +26,7 @@ def getBackendTimeLinesGlobalInfo():
     results_for_js = LokiInteraction.getBackendTimeLinesGlobalInfo()
     return jsonify(results_for_js)
 
-# Changes
+# Changes in main.py
 if __name__ == '__main__':
     port = int(os.getenv("SWARM_CHECKER_PORT", 8080))
     app.run(host='0.0.0.0', port=port)
