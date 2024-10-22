@@ -6,6 +6,7 @@ Ingress pgweb:  [ { host: 'pgweb1.*' }, { host: 'pgweb2.*' } ],
         spring: { host: 'spring1.*' },
         swarmCheckService: {host: 'swarm-check1.*'}
 
+
 Deploy [:postgres], { 'placement.constraints': ['node.role == manager'] }
 
 # Deploy [:flask], { update_config: ['parallelism=2', 'delay=10s', 'failure-action=rollback', 'monitor=15s', 'max-failure-ratio=0.0'],
