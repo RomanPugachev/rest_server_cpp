@@ -1,8 +1,10 @@
 from flask import Flask, jsonify, render_template, request
 from Backends import LokiInteraction
+from flask_cors import CORS
 import os
 
 app = Flask(__name__)
+CORS(app)
 
 # Base application parameters:
 @app.route('/')
