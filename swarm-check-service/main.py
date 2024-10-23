@@ -27,12 +27,11 @@ def getBackendTimeLinesGlobalInfo():
     results_for_js = LokiInteraction.getBackendTimeLinesGlobalInfo()
     return jsonify(results_for_js)
 
-@app.route('/get-container-logs', defaults={'path': ''})
-@app.route('/get-container-logs/<path:path>')
-def get_container_logs():
-    container_id = request.path.split('/')[-1]
+@app.route('/get-container-logs/<path:subpath>')
+def get_container_logs(subpath):
+    container_id = subpath
     if container_id is not None:
-        result = subprocess.run(['docker', 'logs', container_id], capture_output=True, text=True)
+        result = subprocess.run(['docker', 'container', 'logs', container_id], capture_output=True, text=True)
         logs = result.stdout
         return logs
     else:
