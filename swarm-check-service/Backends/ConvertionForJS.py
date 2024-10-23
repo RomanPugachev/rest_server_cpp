@@ -22,10 +22,11 @@ class TimeRangeItemForVis:
             self.end = -1
         if currently_running:
             self.content = "Currently running: starttime " + (str(nanoseconds_to_datetime(self.start)) if container_start_time_known else "unknown")
-
         else:
             time_range = nanoseconds_to_time(int(time.time_ns()) - self.start)
             self.content = f'Container worked for: {time_range}' + ('' if container_start_time_known else ' or more')
+        self.title = f'Container {self.id}'
+        self.backend_path = self.id
 
     def __str__(self):
         return (self.to_dict()).__str__()
@@ -37,7 +38,9 @@ class TimeRangeItemForVis:
             "start" : self.start,
             "end" : self.end,
             "content" : self.content,
-            "continuous": self.end == -1
+            "continuous": self.end == -1,
+            "title" : self.title,
+            "backend_path" : self.backend_path
         }
 
 

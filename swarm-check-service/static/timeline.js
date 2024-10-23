@@ -33,7 +33,6 @@ async function loadTimelineData() {
                     ...item,
                     start: new Date(item.start / 10 ** 6),
                     end: new Date(),
-                    title: `Container ${item.content} is still running. Started at ${new Date(item.start / 10**6)}`
                 }
             }
             else {
@@ -42,7 +41,6 @@ async function loadTimelineData() {
                     ...item,
                     start: new Date(item.start / 10**6), // Convert start timestamp to Date object
                     end: new Date(item.end / 10**6),      // Convert end timestamp to Date object
-                    title: `Container ${item.content} ran from ${new Date(item.start / 10**6)} to ${new Date(item.end / 10**6)}`
                 };
             }
         }));
@@ -73,21 +71,21 @@ async function loadTimelineData() {
         var container = document.getElementById("visualization");
         var timeline = new vis.Timeline(container, items, options);
         timeline.setGroups(groups);
-        // setInterval(() => {
-        //     items.forEach(item => {
-        //         if (item.continuous) {
-        //             items.update({
-        //                 id: item.id,
-        //                 end: new Date() // Update the end time to current time
-        //             });
-        //         }
-        //     });
-        // }, 10);
-        // Adjust timeline on window resize
         window.addEventListener("resize", () => {
             timeline.redraw();
         });
+        timeline.on('select', function (properties) {
+            const selectedItemId = properties.items[0]; // Get the ID of the selected item
+            if (selectedItemId) {
+                const selectedItem = items.get(selectedItemId); // Get the selected item details
 
+                // Check if the item has the backend_path field
+                if (selectedItem.backend_path) {
+                    const url = `/get-container-logs/${selectedItem.backend_path}`;
+                    window.location.href = url; // Redirect the browser to the generated URL
+                }
+            }
+        });
     } catch (error) {
         document.getElementById("count").innerHTML = "Error handled with error: " + error;
         console.error("Error loading timeline data:", error);
