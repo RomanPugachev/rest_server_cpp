@@ -39,8 +39,8 @@ def get_container_logs():
         return jsonify({"status": "ERROR", "message": "Container id is not provided"})
 
 if __name__ == '__main__':
-    port = os.environ.get("PORT")
-    if port is not None:
-        app.run(host='0.0.0.0', port=int(port))
+    debug = os.environ.get("ASYNCIO_DEBUGGER_ENV")
+    if (debug is None) or not (debug == 'True'):
+        app.run(host='0.0.0.0', port=8080)
     else:
-        app.run(debug=True, port=5000)
+        app.run(debug=True, port=8080)
