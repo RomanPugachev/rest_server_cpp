@@ -4,5 +4,5 @@ body {
 }
 .vis-point {
     background-color: red;
-    border-radius: 50%;
+    border-color: darkred;
 }

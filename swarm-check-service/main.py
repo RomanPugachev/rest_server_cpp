@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, render_template, request
 from Backends import LokiInteraction
 from flask_cors import CORS
+import subprocess
 import os
 
 app = Flask(__name__)
@@ -26,6 +27,20 @@ def getBackendTimeLinesGlobalInfo():
     results_for_js = LokiInteraction.getBackendTimeLinesGlobalInfo()
     return jsonify(results_for_js)
 
+@app.route('/get-container-logs', defaults={'path': ''})
+@app.route('/get-container-logs/<path:path>')
+def get_container_logs():
+    container_id = request.path.split('/')[-1]
+    if container_id is not None:
+        result = subprocess.run(['docker', 'logs', container_id], capture_output=True, text=True)
+        logs = result.stdout
+        return logs
+    else:
+        return jsonify({"status": "ERROR", "message": "Container id is not provided"})
+
 if __name__ == '__main__':
-    port = int(os.getenv("SWARM_CHECKER_PORT", 8080))
-    app.run(host='0.0.0.0', port=port)
+    port = os.environ.get("PORT")
+    if port is not None:
+        app.run(host='0.0.0.0', port=int(port))
+    else:
+        app.run(debug=True, port=5000)

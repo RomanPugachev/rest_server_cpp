@@ -63,7 +63,8 @@ class TimePointItemForVis:
         }
 
 
-def get_groups_and_items_from_service_container_actions_entries(RESULT_LIST_FOR_CONTAINER_EVENTS : list[ServiceContainerActions.Service]):
+def get_groups_and_items_from_service_container_actions_entries(RESULT_LIST_FOR_CONTAINER_EVENTS : list[
+    ServiceContainerActions.Service]):
     groups = set()
     items = list()
     for service in RESULT_LIST_FOR_CONTAINER_EVENTS:
@@ -72,7 +73,8 @@ def get_groups_and_items_from_service_container_actions_entries(RESULT_LIST_FOR_
         groups.add(service.service_name)
     return groups, items
 
-def get_groups_and_items_from_service_actions_entries(RESULT_LIST_FOR_SERVICE_EVENTS: list[ServiceActions.ServiceAction]) \
+def get_groups_and_items_from_service_actions_entries(RESULT_LIST_FOR_SERVICE_EVENTS: list[
+    ServiceActions.ServiceAction]) \
         -> tuple[set, list[TimePointItemForVis]]:
     groups = set()
     items = list()

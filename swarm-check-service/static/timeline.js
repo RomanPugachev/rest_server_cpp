@@ -48,7 +48,7 @@ async function loadTimelineData() {
         }));
         // Specify options for the timeline
         var options = {
-            stack: false,
+            stack: true,
             start: new Date(new Date().setHours(0, 0, 0, 0)),
             end: new Date(1000 * 60 * 60 * 24 + new Date().valueOf()),
             editable: false,
@@ -56,23 +56,33 @@ async function loadTimelineData() {
                 item: 10, // Minimal margin between items
                 axis: 5, // Minimal margin between items and the axis
             },
-            orientation: "top"
+            orientation: "top",
+            order: function (a, b) {
+                // Point events come first
+                if (a.type === 'point' && b.type !== 'point') {
+                    return -1;
+                } else if (a.type !== 'point' && b.type === 'point') {
+                    return 1;
+                }
+                // Otherwise sort by start date
+                return a.start - b.start;
+            }
         };
 
         // Create the timeline
         var container = document.getElementById("visualization");
         var timeline = new vis.Timeline(container, items, options);
         timeline.setGroups(groups);
-        setInterval(() => {
-            items.forEach(item => {
-                if (item.continuous) {
-                    items.update({
-                        id: item.id,
-                        end: new Date() // Update the end time to current time
-                    });
-                }
-            });
-        }, 10);
+        // setInterval(() => {
+        //     items.forEach(item => {
+        //         if (item.continuous) {
+        //             items.update({
+        //                 id: item.id,
+        //                 end: new Date() // Update the end time to current time
+        //             });
+        //         }
+        //     });
+        // }, 10);
         // Adjust timeline on window resize
         window.addEventListener("resize", () => {
             timeline.redraw();

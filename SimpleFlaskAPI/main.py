@@ -31,12 +31,6 @@ def home():
 @app.route('/container_info')
 def container_info():
     logging.info("Your application accepted a request on resource /container_info!")
-    global accepted_requests_count, start_time
-    accepted_requests_count+=1
-
-    # Collecting data from Docker API
-    container_id_api, replica_id, app_version = get_docker_metadata()
-
     # Collect information into a dictionary
     uptime = datetime.now() - start_time
     uptime_seconds = int(uptime.total_seconds())
@@ -46,10 +40,7 @@ def container_info():
     formatted_uptime = f"{months} month, {days} days, {hours} hours, {seconds} seconds"
     info = {
         'service_container_uptime': formatted_uptime,
-        'accepted_requests': accepted_requests_count,
-        'container_id': container_id_api,
-        'replica_id': replica_id,
-        'app_version': app_version
+        'accepted_requests': accepted_requests_count
     }
     return jsonify(info)
 

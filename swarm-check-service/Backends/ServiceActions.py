@@ -36,7 +36,7 @@ class ServiceAction:
         for current_result_dict in results:  # Every result is a dict which corresponds to one ServiceAction
             current_action_dict_from_json = json.loads(current_result_dict['values'][0][1])
             current_service_id = current_action_dict_from_json['Actor']['ID']
-            current_service_name = current_action_dict_from_json['Actor']['Attributes']['name']
+            current_service_name = current_result_dict["stream"]["Actor_Attributes_name"]
             current_action_name = current_action_dict_from_json['Action']
             current_timestamp_nano = int(current_action_dict_from_json['timeNano'])
             service_actions_list.append(ServiceAction(current_service_id, current_service_name, current_action_name, current_timestamp_nano))
