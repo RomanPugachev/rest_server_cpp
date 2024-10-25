@@ -6,8 +6,8 @@ Ingress pgweb:  { host: 'pgweb.*' },
         spring: { host: 'spring.*' },
         swarm_timeliner: {host: 'swarm-timeliner.*'}
 
-
 Deploy [:postgres], { 'placement.constraints': ['node.role == manager'] }
+Deploy [:swarm_timeliner], { 'placement.constraints': ['node.role == manager'] }
 
 
 Service :postgres, image: 'postgres:17' do
@@ -15,7 +15,7 @@ Service :postgres, image: 'postgres:17' do
   volume target: '/var/lib/postgresql/data', name: 'postgres_data'
 end
 
-Service :swarm_timeliner, image: 'dtorry/swarm_timeliner:latest', ports: 8080 do
+Service :swarm_timeliner, image: 'dtorry/swarm_timeliner:latest', ports: 7000 do
   network 'grafana-network', external: true
   volume '/var/run/docker.sock:/var/run/docker.sock'
   env BASE_LOKI_URL: 'http://loki:3100/loki/api/v1', LIMIT: '0'

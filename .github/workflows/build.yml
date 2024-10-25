@@ -93,3 +93,5 @@ jobs:
         dry-stack -s portainer.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
 
         dry-stack -s grafana.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
+
+        dry-stack -s registry-listener.drs swarm_deploy -x ssh://$SERVER_USERNAME@$SERVER_HOST --tls-domain simple-track.ru -- --prune
