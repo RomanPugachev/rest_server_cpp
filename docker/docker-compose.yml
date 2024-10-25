@@ -21,8 +21,3 @@ services:
 #    build:
 #      context: ../SimpleFlaskAPI
 #      dockerfile: ../docker/python/Dockerfile
-  swarm-check-service:
-    image: ${REGISTRY_HOST}/swarm-check-service/${CI_COMMIT_BRANCH}
-    build:
-      context: ../swarm-check-service
-      dockerfile: ../docker/python/Dockerfile
