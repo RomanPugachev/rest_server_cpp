@@ -12,12 +12,12 @@ services:
 
   simpletracker:
     image: ${REGISTRY_HOST}/simpletracker/${CI_COMMIT_BRANCH}
-#    build:
-#      context: ../simpleTaskTrackerWebApp
-#      dockerfile: ../docker/java/Dockerfile
+    build:
+      context: ../simpleTaskTrackerWebApp
+      dockerfile: ../docker/java/Dockerfile
 
   python-api:
     image: ${REGISTRY_HOST}/python-flask-api/${CI_COMMIT_BRANCH}
-    build:
-      context: ../SimpleFlaskAPI
-      dockerfile: ../docker/python/Dockerfile
+#    build:
+#      context: ../SimpleFlaskAPI
+#      dockerfile: ../docker/python/Dockerfile
